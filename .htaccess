@@ -1,0 +1,31 @@
+#php_flag display_errors on
+
+DirectoryIndex _pmPage.php
+
+#===================================================================
+# pmEngine rewrite rules
+
+RewriteEngine on
+Options +FollowSymlinks
+RewriteBase /
+
+# File name replacement for downloading documents
+# File extentions set must be equal to configs/config_documents.php file extentions
+# RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^data/documents/(.*)\.(doc|docx|xls|xlsx|odt|pdf|rtf|txt)$ /_pmPage.php?__pmAction=documentsProcess [L,NC]
+
+
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^(.*)\.js$ /_pmPage.php?__pmAction=transResources&file=$1.js [L,NC]
+
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^(.*)\.css$ /_pmPage.php?__pmAction=transULR&file=$1.css [L,NC]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)\.(gif|jpg|png)$ /_pmPage.php?__pmAction=transContentImage&file=$1.$2 [L,NC]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ /_pmPage.php?page=$1 [L]
+
+#
+#===================================================================

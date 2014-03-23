@@ -1,0 +1,31 @@
+.admin_index_block {
+	margin-top:10px;
+}
+
+.admin_index_block a {
+	text-decoration: none;
+	border-bottom: 1px dashed #555;
+	color: #555;
+	font-size: 16px;
+	font-weight: bold;
+	padding-top: 10px;
+}
+.admin_index_block br{
+	margin-bottom: 10px;
+}
+
+.index_widget_block {
+	margin: 20px 0px;
+}
+
+.index_section_link {
+	font-size: 22px;
+	padding-bottom: 5px;
+	border-bottom: dashed 1px #777;
+	text-decoration: none;
+	color: #777;
+}
+.index_section_link:hover {
+	padding-bottom: 3px;
+	border-bottom: double 3px #777;
+}

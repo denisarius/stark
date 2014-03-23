@@ -1,0 +1,279 @@
+#objects_object_add_container {
+	margin-bottom: 10px;
+}
+.typed_objects_object_add_block_acive, .typed_objects_object_add_block_acive:hover {
+	border: solid 1px #555;
+	-webkit-box-shadow: 0px 0px 20px #555;
+	-moz-box-shadow: 0px 0px 20px #555;
+  	box-shadow: 0px 0px 20px #555;
+	margin: 30px 20px 30px 20px;
+	border-radius: 5px;
+	padding: 10px;
+}
+.typed_objects_edit_image_container {
+	border: solid 1px #ddd;
+	padding: 10px;
+	border-radius: 5px;
+	text-align: center;
+	width: 200px;
+	float: left;
+	margin-right: 20px;
+	min-height: 50px;
+}
+.typed_objects_edit_image_container img {
+	width: 180px;
+	vertical-align: top;
+}
+.typed_objects_edit_prop_need_title {
+	font-weight: bold;
+	color: #900;
+}
+
+.typed_objects_object_node {
+	margin-bottom: 20px;
+	padding: 10px;
+	border: solid 1px #ddd;
+	border-radius: 5px;
+}
+.typed_objects_object_node:hover {
+	border: solid 1px #555;
+}
+.typed_objects_object_node_title {
+	font-size: 18px;
+	font-weight: bold;
+	color: #999;
+	cursor: pointer;
+	border-bottom: dashed 1px #999;
+	padding-bottom: 3px;
+	margin-bottom: 10px;
+}
+.typed_objects_object_node_image {
+	float: left;
+	margin: 0px 10px 10px 0px;
+}
+.typed_objects_object_node_note {
+	word-wrap: break-word;
+}
+.typed_objects_object_node_note br{
+	clear: none;
+}
+.typed_objects_property_dir_values {
+	cursor: pointer;
+	border-bottom: dashed 1px #000;
+	padding-bottom: 3px;
+}
+.typed_objects_dir_select_node {
+	display: inline-block;
+	width: 320px;
+	margin: 5px 5px;
+}
+
+.typed_objects_property_structured_text_values {
+	cursor: pointer;
+	border-bottom: dashed 1px #000;
+	padding-bottom: 3px;
+	font-size: 14px;
+}
+
+.typed_object_object_sort_container {
+	max-height: 500px;
+	overflow-y: scroll;
+	padding: 5px;
+	border: solid 1px #999;
+	border-radius: 5px;
+	margin-bottom: 10px;
+}
+.typed_object_object_sort_list {
+	margin: 0px;
+	padding: 0px;
+	list-style: none;
+}
+.typed_object_object_sort_list li {
+    margin: 2px;
+	padding: 3px;
+	font-size: 18px;
+	color: #555;
+	border: solid 1px #777;
+	border-radius: 3px;
+	background-color: #fff;
+}
+.typed_object_description_container span.cke_skin_kama {
+	border-radius: 5px 5px 0 0;
+}
+
+.typed_objects_text_edit_tool_panel {
+	padding: 5px 10px 5px 10px;
+	border: solid 1px #d3d3d3;
+	border-top: none;
+	border-radius: 0 0 5px 5px;
+/*	width: 201px;*/
+	background-color: #f2faff;
+}
+input[type=button].typed_objects_edit_tool_button,  input[type=button].typed_objects_edit_tool_button:focus {
+	width: 100%;
+	background-color: #f7f7f7;
+	margin: 5px 10px 5px 0px;
+	display: inline-block;
+	color: #222;
+}
+.typed_objects_object_move_mode {
+	text-align: center;
+	height: 120px;
+	padding-top: 20px;
+}
+.typed_objects_object_move_mode input[type=button], .typed_objects_object_move_mode input[type=button]:hover {
+	margin-left: 50px;
+	padding-top: 70px;
+	background-position: center 10px;
+	background-repeat: no-repeat;
+	width: 220px;
+	font-size: 14px;
+}
+.typed_objects_object_move_mode input[type=button]:hover {
+	color: #333;
+	text-decoration: underline;
+}
+.typed_objects_object_move_mode input[type=button]:first-child {
+	margin-left: 0px;
+}
+.typed_objects_object_move_mode input[type=button].move {
+	background-image: url('../../images/objects_move_mode_move.png');
+}
+.typed_objects_object_move_mode input[type=button].copy {
+	background-image: url('../../images/objects_move_mode_copy.png');
+}
+.typed_objects_object_type_selector {
+	font-weight: bold;
+	margin: 20px 0px 10px 5px;
+}
+.typed_objects_object_type_selector select {
+	margin-left: 20px;
+	width: 611px;
+}
+
+.typed_object_structure_text_edit_container {
+	text-align: center;
+	width: 980px;
+}
+.typed_object_structure_text_edit_node {
+	border: solid 1px #999;
+	margin: 0 0 10px 0;
+	padding: 10px;
+	border-radius: 6px;
+	display: none;
+}
+.typed_object_structure_text_edit_node:hover {
+	border: solid 1px #333;
+	background-color: #fbfbfb;
+	-webkit-box-shadow: 0 0 -5px -5px rgba(150, 150, 150, 0.75);
+	-moz-box-shadow:    0 0 -5px -5px rgba(150, 150, 150, 0.75);
+	box-shadow:         0 0 -5px -5px rgba(150, 150, 150, 0.75);
+}
+.typed_object_structure_text_edit_node > div {
+	vertical-align: top;
+}
+.typed_object_structure_text_edit_node_placeholder {
+	background-color: #eee;
+	border: solid 1px #999;
+	border-radius: 6px;
+	margin: 0 0 10px 0;
+}
+
+.typed_object_structure_text_edit_node_image_container {
+	width: 200px;
+	border: solid 1px #999;
+	border-radius: 4px;
+	display: inline-block;
+	margin-right: 10px;
+	padding: 0 0px 10px 0px;
+	overflow: hidden;
+}
+.typed_object_structure_text_edit_node_image_container img {
+	width: 200px;
+	display: inline-block;
+	margin-bottom: 10px;
+}
+.typed_object_structure_text_edit_node_image_container h2 {
+	margin: 0;
+	padding: 5px;
+	font-size: 14px;
+	font-weight: normal;
+	background-color: #eee;
+}
+
+.typed_object_structure_text_edit_node_info_container {
+	width: 730px;
+	display: inline-block;
+	text-align: left;
+}
+.typed_object_structure_text_edit_node_info_title {
+	margin-bottom: 10px;
+}
+.typed_object_structure_text_edit_node_info_title span {
+	font-weight: bold;
+	display: inline-block;
+}
+.typed_object_structure_text_edit_node_info_title input[type=text] {
+	width: 644px;
+	display: inline-block;
+	margin-left: 10px;
+}
+.typed_object_structure_text_edit_node_info_text {
+	height: 100px;
+	width: 717px;
+	padding: 5px;
+	border: solid 1px #999;
+	border-radius: 6px;
+	overflow: hidden;
+}
+.typed_object_structure_text_edit_node_info_text_controls input[type=button] {
+	margin: 5px 0;
+}
+
+.typed_objects_property_table_values {
+	cursor: pointer;
+	border-bottom: dashed 1px #000;
+	padding-bottom: 3px;
+	font-size: 14px;
+}
+.typed_object_table_edit_node {
+	border: solid 1px transparent;
+	border-radius: 4px;
+	margin: 1px 0;
+	padding: 2px 0px 2px 0;
+}
+.typed_object_table_edit_node:hover {
+	border: solid 1px #999;
+}
+.typed_object_table_edit_node_placeholder {
+	height: 30px;
+	background-color: #eee;
+	border: solid 1px #999;
+	border-radius: 4px;
+	margin: 1px 0;
+}
+
+.typed_object_table_edit_nod_number {
+	font-size: 14px;
+	text-align: center;
+	display: inline-block;
+	width: 28px;
+}
+
+.typed_object_table_edit_node input[type=text] {
+	margin-right: 10px;
+	vertical-align: middle;
+}
+.typed_object_table_edit_node img {
+	cursor: pointer;
+	vertical-align: middle;
+}
+.typed_object_table_edit_caption {
+	margin: 0 0 5px 0;
+	padding: 2px 5px 2px 30px;
+}
+.typed_object_table_edit_caption > div.hdr {
+	font-weight: bold;
+    display: inline-block;
+	margin-right: 18px;
+}

@@ -1,0 +1,54 @@
+.dirs_container select {
+	width: 700px;
+	display: block;
+	margin: 5px 0px 10px 10px;
+	font-size: 16px;
+}
+.dirs_dir_content {
+	margin-top: 10px;
+}
+.dirs_value_node {
+	border: solid 1px #fff;
+	border-radius: 3px;
+	padding: 5px;
+	font-size: 16px;
+}
+.dirs_value_node:nth-child(2n+1) {
+	background-color: #f5f5f5;
+	border: solid 1px #f5f5f5;
+}
+.dirs_value_node:hover {
+	border: solid 1px #999;
+}
+.dirs_value_name {
+	width: 625px;
+	vertical-align: middle;
+	display:inline-block;
+}
+.dirs_value_name span {
+	display: block;
+	font-size: 10px;
+	margin-top: 5px;
+	padding-left: 10px;
+}
+.dirs_value_buttons {
+	display:inline-block;
+	vertical-align: middle;
+	width: 70px;
+	text-align: right;
+}
+.dirs_value_buttons img {
+	cursor: pointer;
+}
+.dirs_link_menu_block {
+	margin: 15px 0px;
+}
+.dirs_link_menu_block div {
+	width: 450px;
+	float: left;
+	padding-top: 3px;
+}
+.dirs_link_menu_block input[type=button] {
+	float: left;
+	margin-right: 10px;
+}

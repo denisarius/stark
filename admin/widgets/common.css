@@ -1,0 +1,196 @@
+.cms_menu_selector {
+	font-size: 20px;
+	font-weight: bold;
+	color: #999;
+	margin: 10px 0px 10px 0px;
+	border-bottom: 1px #999 dashed;
+	padding-left: 10px;
+	cursor: pointer;
+/*	float: left;
+	width: 475px; */
+}
+
+.cms_menu_item_selector {
+	font-size: 18px;
+	font-weight: bold;
+	color: #999;
+	margin: 10px 0px 10px 0px;
+	border-bottom: 1px #999 dashed;
+	padding-left: 10px;
+	cursor: pointer;
+/*	width: 475px; */
+}
+
+.cms_common_menu_selector_item {
+	margin-bottom: 5px;
+	cursor: pointer;
+}
+
+.cms_menu_items_select_list li{
+	list-style-type: none;
+	margin-bottom: 2px;
+}
+
+.cms_menu_items_select_list li span{
+	cursor: pointer;
+}
+/*******************************************************************************
+* Диалог выбора текста или раздела
+*******************************************************************************/
+.texts_selector_link_text_list_menu_item {
+	font-size: 14px;
+	font-weight: bold;
+	margin: 5px 0px 10px 0px;
+	color: #999;
+}
+.texts_selector_link_text_list_text, .texts_selector_link_menu_list_text {
+	margin: 5px 0px 5px 15px;
+	cursor: pointer;
+}
+select.texts_selector_link_menu_menu_list {
+	width: 95%;
+	border: solid 1px #555;
+	border-radius: 3px;
+}
+/*******************************************************************************
+* Контейнер выбора константы
+*******************************************************************************/
+.constants_select_container div {
+	border: solid 1px #fff;
+	border-radius: 3px;
+}
+.constants_select_container div:nth-child(2n+1) {
+	background-color: #f5f5f5;
+	border: solid 1px #f5f5f5;
+}
+.constants_select_container div:hover {
+	border: solid 1px #999;
+}
+.constants_select_container div span {
+	cursor: pointer;
+	width: 585px;
+	padding: 5px;
+	display: inline-block;
+	vertical-align: top;
+	font-size: 10px;
+}
+.constants_select_container div span:first-child {
+	width: 585px;
+	font-size: 12px;
+	font-weight: bold;
+}
+/*******************************************************************************
+* Контейнер выбора документа
+*******************************************************************************/
+.documents_select_container div {
+	border: solid 1px #fff;
+	border-radius: 3px;
+}
+.documents_select_container div:nth-child(2n+1) {
+	background-color: #f5f5f5;
+	border: solid 1px #f5f5f5;
+}
+.documents_select_container div:hover {
+	border: solid 1px #999;
+}
+.documents_select_container div span {
+	cursor: pointer;
+	width: 585px;
+	padding: 5px;
+	display: inline-block;
+	vertical-align: top;
+	font-size: 10px;
+}
+.documents_select_container div span:first-child {
+	width: 585px;
+	font-size: 12px;
+	font-weight: bold;
+}
+/*******************************************************************************
+* Стили выбора текста или раздела для вставки псевдотэга
+*******************************************************************************/
+.common_link_text_list_menu_item {
+	font-size: 14px;
+	font-weight: bold;
+	margin: 5px 0px 10px 0px;
+	color: #999;
+}
+.common_link_text_list_text, .common_link_menu_list_text {
+	margin: 5px 0px 5px 15px;
+	cursor: pointer;
+}
+select.common_link_menu_menu_list {
+	width: 95%;
+	border: solid 1px #555;
+	border-radius: 3px;
+}
+/*******************************************************************************
+* Диалог выбора раздела и подраздела
+*******************************************************************************/
+.common_menu_item_select_container select {
+	width: 99%;
+}
+.common_menu_item_select_container h2 {
+	font-size: 18px;
+	font-weight: normal;
+}
+.common_menu_item_select_items_container {
+	overflow: auto;
+}
+.common_menu_item_select_items_container div {
+	cursor: pointer;
+	margin: 5px 0;
+	font-size: 14px;
+}
+
+.common_menu_item_select_tree_container {
+	overflow: auto;
+}
+.common_menu_item_select_tree_container h2 {
+	font-size: 18px;
+	font-weight: normal;
+	margin: 0 0 10px 0;
+	border-bottom: dashed 1px #999;
+	color: #555;
+}
+.common_menu_item_select_tree_container div {
+	cursor: pointer;
+	padding: 3px 0 2px 15px;
+	font-size: 14px;
+}
+
+.common_section_selector_item {
+	border: solid 1px transparent;
+	border-radius: 4px;
+}
+
+.common_section_selector_item:hover {
+	background-color: #f0f0f0;
+	border: solid 1px #e0e0e0;
+}
+/*******************************************************************************
+* Загрузка прикрепленного документа
+*******************************************************************************/
+.common_attachment_edit_container .hdr {
+	font-weight: bold;
+	width: 100px;
+	margin-bottom: 10px;
+	display: inline-block;
+}
+.common_attachment_edit_container .field {
+	width: 300px;
+	display: inline-block;
+}
+.common_attachment_edit_container .field input[type=text]{
+	width: 97%;
+}
+
+.common_attachment_progres_bar {
+	background: url('../images/progressbar.gif');
+	height: 13px;
+	font-size: 11px;
+	line-height: 1px;
+	border-radius: 3px;
+	width: 0px;
+	border: solid 1px #999;
+}
