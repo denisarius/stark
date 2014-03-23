@@ -56,12 +56,16 @@ $_cms_directories_data='directories_data';
 $_cms_texts_url_prefix='content';
 
 // ID для различных меню
-$_main_menu_id=1;   // Необходимо для simple_mode
+//$_main_menu_id=1;   // Необходимо для simple_mode
 // Описание языков сайта
 $_languages=array(
 	array('id'=>'ru',
 		'title'=>'Рус',
 		'admin_title'=>'Русский',
+        // основное (верхнее) меню
+        'top_menu_id' => 1,
+        // расширенное меню (плашки)
+        'ext_menu_id' => 2,
 		'lights_menu_item_id'=>6,
 	),
 );

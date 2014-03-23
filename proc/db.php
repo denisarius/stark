@@ -93,6 +93,21 @@ function get_data_array($field, $tables, $condition='')
 	mysql_free_result($res);
 	return $r;
 }
+
+/**
+ * Аналогична get_data_array, но возвращает набор данных.
+ * @param $field список полей, передается в sql-запрос
+ * @param $tables список таблиц (может быть join)
+ * @param string $condition условие выборки, если не пустое, передается в where
+ * @return DbResultSet
+ */
+function get_data_array_rs($field, $tables, $condition='')
+{
+    if ($condition!='') $condition="where $condition";
+    return new DbResultSet(
+        query("select $field from $tables $condition")
+    );
+}
 //------------------------------------------------------------------------------
 function get_data_array_query($query)
 {
@@ -104,10 +119,43 @@ function get_data_array_query($query)
 	mysql_free_result($res);
 	return $r;
 }
+
 //------------------------------------------------------------------------------
 function mysql_safe($str)
 {
 	return mysql_real_escape_string($str);
 }
 //------------------------------------------------------------------------------
+
+
+/**
+ * Хелпер для работы с набором данных, полученных от запроса к БД
+ */
+class DbResultSet
+{
+    public function __construct($queryResult)
+    {
+        if (!$queryResult)
+            throw new Exception('query result must be a resource');
+        $this->_res = $queryResult;
+    }
+
+    public function isEmpty()
+    {
+        return mysql_num_rows($this->_res);
+    }
+
+    public function next($resultType = MYSQL_BOTH)
+    {
+        return mysql_fetch_array($this->_res, $resultType);
+    }
+
+    public function __destruct()
+    {
+        mysql_free_result($this->_res);
+    }
+
+    private $_res;
+}
+
 ?>

@@ -23,7 +23,7 @@
 <@gadget_header>
 <@gadget_top_menu>
 <div class="content_container">
-<@gadget_main_menu>
+<@gadget_ext_menu>
 	<div class="content_container_center">
 stop;
 	switch($pagePath[0])
