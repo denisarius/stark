@@ -67,7 +67,7 @@ $_languages=array(
         // основное (верхнее) меню
         'top_menu_id' => 1,
         // расширенное меню (плашки)
-        'ext_menu_id' => 2,
+        'submenu_id' => 2,
 		'lights_menu_item_id'=>6,
 	),
 );

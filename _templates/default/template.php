@@ -23,13 +23,13 @@
 <@gadget_header>
 <@gadget_top_menu>
 <div class="content_container">
-<@gadget_ext_menu>
+<@gadget_submenu>
 	<div class="content_container_center">
 stop;
 	switch($pagePath[0])
 	{
         case 'order':
-			echo '<@gadget_content_header><@gadget_submenu><@gadget_content11>';
+			echo '<@gadget_content_header><@gadget_content_menu><@gadget_content11>';
 			break;
 		default: echo '<@gadget_content>'; break;
 	}
