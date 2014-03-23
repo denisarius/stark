@@ -56,7 +56,9 @@ $_cms_directories_data='directories_data';
 $_cms_texts_url_prefix='content';
 
 // ID äëÿ ğàçëè÷íûõ ìåíş
-//$_main_menu_id=1;   // Íåîáõîäèìî äëÿ simple_mode
+/** Èñïîëüçóåòñÿ ïğè $_simple_mode == true */
+$_main_menu_id=null;
+
 // Îïèñàíèå ÿçûêîâ ñàéòà
 $_languages=array(
 	array('id'=>'ru',

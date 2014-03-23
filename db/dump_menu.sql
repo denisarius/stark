@@ -65,7 +65,7 @@ CREATE TABLE `menus_items` (
 
 LOCK TABLES `menus_items` WRITE;
 /*!40000 ALTER TABLE `menus_items` DISABLE KEYS */;
-INSERT INTO `menus_items` VALUES (1,'н йнлоюмхх','',0,1,1,1,NULL),(2,'бюйюмяхх','',0,2,1,1,NULL),(3,'онопня-нрбер','',0,3,1,1,NULL),(4,'ярюрэ дхкепнл','',0,4,1,1,NULL),(5,'йнмрюйрш','',0,5,1,1,NULL),(6,'онвелс лш','',1,1,1,1,NULL),(7,'мюью йнлюмдю','/staff.html',1,2,1,1,''),(8,'юйжхх, йсонмш','/actions.html',1,3,1,1,''),(9,'нргшбш йкхемрнб','/feedback.html',1,4,1,1,''),(10,'оюпрмепш','',1,5,1,1,NULL);
+INSERT INTO `menus_items` VALUES (1,'н йнлоюмхх','',0,1,1,1,NULL),(2,'бюйюмяхх','',0,2,1,1,NULL),(3,'бнопня-нрбер','/faq.html',0,3,1,1,''),(4,'ярюрэ дхкепнл','',0,4,1,1,NULL),(5,'йнмрюйрш','',0,5,1,1,NULL),(6,'онвелс лш','',1,1,1,1,NULL),(7,'мюью йнлюмдю','/staff.html',1,2,1,1,''),(8,'юйжхх, йсонмш','/actions.html',1,3,1,1,''),(9,'нргшбш йкхемрнб','/feedback.html',1,4,1,1,''),(10,'оюпрмепш','',1,5,1,1,NULL);
 /*!40000 ALTER TABLE `menus_items` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -78,4 +78,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-03-23 16:14:15
+-- Dump completed on 2014-03-23 19:41:52
