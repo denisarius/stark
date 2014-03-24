@@ -1,17 +1,67 @@
+<!-- ЛЕМЧ ЙНМРЕМРЮ (ЛЕМЧ 2-ЦН СПНБМЪ ДКЪ НАНХУ ЦКЮБМШУ ЛЕМЧ) -->
 <div class="content_menu_container">
 	<ul>
-		<li><a href="">н фюкчгх   </a></li>
-	    <li><a href=""> цнрнбше пеьемхъ  </a></li>
-	    <li class="content_menu_submenu"><a href="">яхярелш фюкчгх  </a>
-	    	<ul>
-	    		<li><a href="">фюкчгх дкъ нйнм обу</a></li>
-	    		<li><a href="">бепрхйюкэмше фюкчгх</a></li>
-	    		<li><a href="">цнпхгнмрюкэмше фюкчгх</a></li>
-	    		<li><a href="">пскнммше ьрнпш</a></li>
-	    	</ul>
-	    </li>
-	    <li><a href="">оюкхрпю х тюйрспш </a></li>
-	    <li><a href="">пюяяв╗р ярнхлнярх </a></li>
-	    <li><a href="">тнрнцюкепеъ</a></li>
+		<?php
+		global $language, $_cms_menus_items_table, $page;
+		$menuItems = get_data_array_rs(
+			'id, name',
+			$_cms_menus_items_table,
+			'parent='.get_menu_item_id(1)
+		);
+		$levelTwoMenuId = get_menu_item_id(2);
+
+		while ($item = $menuItems->next())
+		{
+			$url = get_menu_url($item['id']);
+
+			// ОНОЮДЮЕЛ Б ОСРЭ МЮБХЦЮЖХХ?
+			if ($item['id'] == $levelTwoMenuId)
+				$classSelected = 'current';
+			else
+				$classSelected = '';
+
+			$subMenuItems = get_data_array_rs(
+				'id, name',
+				$_cms_menus_items_table,
+				'parent='.$item['id']
+			);
+
+			$subMenu = '';
+			$classSubMenu = '';
+
+			while ($subItem = $subMenuItems->next())
+			{
+				$subUrl = get_menu_url($subItem['id']);
+				$subMenu .= "<li><a href=\"$subUrl\">{$subItem['name']}</a></li>";
+			}
+
+			if ($subMenu)
+			{
+				$classSubMenu = 'content_menu_submenu';
+				$subMenu = "<ul>$subMenu</ul>";
+			}
+
+			echo <<<ITEM
+		<li class="$classSelected $classSubMenu"><a href="$url">{$item['name']}</a>
+		$subMenu
+		</li>
+ITEM;
+		}
+		?>
+
+
+		<!--		<li><a href="">н фюкчгх   </a></li>-->
+		<!--	    <li><a href=""> цнрнбше пеьемхъ  </a></li>-->
+		<!--	    <li class="content_menu_submenu"><a href="">яхярелш фюкчгх  </a>-->
+		<!--	    	<ul>-->
+		<!--	    		<li><a href="">фюкчгх дкъ нйнм обу</a></li>-->
+		<!--	    		<li><a href="">бепрхйюкэмше фюкчгх</a></li>-->
+		<!--	    		<li><a href="">цнпхгнмрюкэмше фюкчгх</a></li>-->
+		<!--	    		<li><a href="">пскнммше ьрнпш</a></li>-->
+		<!--	    	</ul>-->
+		<!--	    </li>-->
+		<!--	    <li><a href="">оюкхрпю х тюйрспш </a></li>-->
+		<!--	    <li><a href="">пюяяв╗р ярнхлнярх </a></li>-->
+		<!--	    <li><a href="">тнрнцюкепеъ</a></li>-->
 	</ul>
 </div>

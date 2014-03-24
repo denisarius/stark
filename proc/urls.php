@@ -30,7 +30,8 @@ function get_menu_url($id)
 	if ($menu === false) return '/'; // не нашли меню
 
 	$path = get_menu_item_path($id);
-	if ($menu['url'] != '') return "$path{$menu['url']}";
+	$menuUrl = ltrim($menu['url'], '/');
+	if ($menu['url'] != '') return "$path/$id/$menuUrl";
 
 	return "$path/$id.html";
 }
@@ -64,7 +65,7 @@ function get_menu_item_path($id, $parent = null, $menuId = null)
 	$path = '';
 	while ($menuItem['parent'] != 0)
 	{
-		$path = "/{$menuItem['parent']}" . $path;
+		$path = "/{$menuItem['parent']}".$path;
 		// родитель
 		$menuItem = get_data_array('id, parent', $_cms_menus_items_table, "id = {$menuItem['parent']}");
 	}
@@ -73,26 +74,65 @@ function get_menu_item_path($id, $parent = null, $menuId = null)
 }
 
 
-/**
- * TODO доделать
- * Возвращает ид пункта меню по относительному url.
- * Является обратной для функции get_menu_url.
- *
- * @param string $url относительный url
- *
- * @return int ид пункта меню
- */
-function get_menu_id($url)
+// ПРОЧИЕ ХЕЛПЕРЫ
+
+function get_content()
 {
-	global $pagePath, $_cms_menus_table, $_cms_menus_items_table, $_cms_simple, $_main_menu_id;
+	global $pagePath, $_cms_texts_table;
+	$text_id = (int)array_slice($pagePath, -1, 1);
+	return get_data_array('*', $_cms_texts_table, "menu_item=$text_id");
+}
 
-	if (is_numeric($p = array_slice($pagePath, -1, 1)))
-		return $p;
+/**
+ * Возвращает ид пункта меню, находящегося на активном пути иерархии меню на заданной глубине.
+ *
+ * @param int $level - глубина искомого пункта. если не задана, то ищем для текущего пункта.
+ * уровень 1 соответствут ид корня дерева текущего меню (учитывает режим $_cms_simple)
+ *
+ * @return int ид пункта меню, если найден, иначе -1
+ */
+function get_menu_item_id($level = 0)
+{
+	global $pagePath, $_cms_simple;
 
-	$menu_id = $_cms_simple ? $_main_menu_id : $pagePath[0];
+	// если последний элемент пути - число, то это ид меню
+	$p = array_slice($pagePath, -1, 1);
+	if (is_numeric($p[0]))
+		$menuId = (int)$p[0];
+	else
+	{
+		// иначе ид меню должен быть в предпоследнем элементе
+		$p = array_slice($pagePath, -2, 1);
+		if (is_numeric($p[0]))
+			$menuId = (int)$p[0];
+		else
+			return -1;
+	}
 
-//	$menu = false;
-//	$resM = new DbResultSet(data("select * from $_cms_menus_table"));
+	if (!$level)
+		return $menuId;
+
+	// path - путь от корня до текущего пункта меню включительно
+	$path = explode('/', get_menu_item_path($menuId));
+	array_shift($path);
+	$path[] =  $menuId;
+
+	if (!$_cms_simple)
+		// убираем ид дерева меню
+		array_shift($path);
+
+	$maxLevel = count($path);
+	if ($level <= $maxLevel)
+		return (int)$path[$level-1];
+	else
+		return -1;
+}
+
+function get_menu_root_id()
+{
+	global $pagePath;
+
+	return (int)$pagePath[0];
 }
 
 //------------------------------------------------------------------------------

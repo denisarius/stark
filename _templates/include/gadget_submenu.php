@@ -8,14 +8,15 @@
 		$_cms_menus_items_table,
 		'menu = '.$language['submenu_id'].' and parent=0'
 	);
+	$levelOneMenuId = get_menu_item_id(1);
 
 	$itemOrd = 1;
 	while ($item = $menuItems->next())
 	{
 		$url = get_menu_url($item['id']);
 
-		// пункт меню текущей страницы?
-		if ($url === "/$page")
+		// попадаем в путь навигации?
+		if ($item['id'] == $levelOneMenuId)
 			$classSelected = 'current';
 		else
 			$classSelected = '';
