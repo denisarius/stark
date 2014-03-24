@@ -21,7 +21,8 @@ br {
 }
 
 body {
-	font: 14px "Trebuchet MS";
+    /* TODO dirty fix for linux developers */
+	font: 14px "Arial"; /*"Trebuchet MS";*/
 	color: #1a1a1a;
 }
 
@@ -855,7 +856,8 @@ ul {
 }
 
 .managers_node_name{
-	font-family: "TrebuchetMS_Bold";
+    /* TODO dirty fix for linux developers */
+    font-weight: bold; /* font-family: "TrebuchetMS_Bold"; */
 	font-size: 18px;
 	font-style: italic;
 	margin-bottom: 2px;

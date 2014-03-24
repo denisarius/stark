@@ -31,7 +31,8 @@ stop;
         case 'order':
 			echo '<@gadget_content_header><@gadget_content_menu><@gadget_content11>';
 			break;
-		default: echo '<@gadget_content>'; break;
+		// типовой макет
+		default: echo '<@gadget_content_header><@gadget_content_menu><@gadget_content>'; break;
 	}
 
 	echo <<<stop
