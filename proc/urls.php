@@ -16,7 +16,8 @@ function get_text_url($id, $title, $menu_item, $menu_url = '')
  * Ќеобходимо дл€ поддержани€ ссылочной целостности сайта, используетс€, например, в обработке псевдотэгов в текстах.
  *
  * ‘ормат пути:
- * @pre {/<menu_id>/<parent_0>/.../<parent_n>/<menu_item_id>.html)}
+ * дл€ текстовых разделов:  @pre{ /<menu_item_id>.html }
+ * дл€ заданных урлов: @pre{ /<menu_item_id>/menu_item_url }
  *
  * @param int $id идентификатор пункта меню
  *
@@ -29,48 +30,47 @@ function get_menu_url($id)
 	$menu = get_data_array('*', $_cms_menus_items_table, "id='$id'");
 	if ($menu === false) return '/'; // не нашли меню
 
-	$path = get_menu_item_path($id);
 	$menuUrl = ltrim($menu['url'], '/');
-	if ($menu['url'] != '') return "$path/$id/$menuUrl";
+	if ($menu['url'] != '') return "/$id/$menuUrl";
 
-	return "$path/$id.html";
+	return "/$id.html";
 }
 
 /**
- * ¬озвращает url-путь в меню от корн€ раздела до заданного пункта меню.
- * ¬ случае, если сайт работает в режиме с несколькими меню, первым элементом пути будет ид меню.
+ * ¬озвращает путь в меню от корн€ раздела до заданного пункта меню.
  * ≈сли не указан один из (реально) требуемых параметров $parent или $menuId, будет выполнен дополнительный запрос
  * к Ѕƒ.
  *
  * @param int $id ид пункта меню
  * @param int $parent ид родител€
- * @param int $menuId ид дерева меню
  *
- * @return string путь в формате url
+ * @return array путь
  */
-function get_menu_item_path($id, $parent = null, $menuId = null)
+function get_menu_item_path($id, $parent = null)
 {
 	global $_cms_menus_items_table, $_cms_simple, $_main_menu_id;
 
+	// ѕолучим данные текущего раздела дл€ запуска цикла обхода дерева
+
 	// заданы не все необходимые фактические параметры?
-	if (is_null($parent) or (is_null($menuId) and !$_cms_simple))
-		$menuItem = get_data_array('id, parent, menu as menu_id', $_cms_menus_items_table, "id = $id");
+	if (is_null($parent))
+		$menuItem = get_data_array('id, parent', $_cms_menus_items_table, "id = $id");
 	else
 	{
 		// можем все получить из фактических параметров
-		$menuItem = array('id' => $id, 'parent' => $parent, 'menu_id' => $_cms_simple ? $_main_menu_id : $menuId);
+		$menuItem = array('id' => $id, 'parent' => $parent);
 	}
 
-	$menuId = $menuItem['menu_id'];
-	$path = '';
+	// пройдем по дереву вверх
+	$path = array();
 	while ($menuItem['parent'] != 0)
 	{
-		$path = "/{$menuItem['parent']}".$path;
+		array_unshift($path, $menuItem['parent']);
 		// родитель
 		$menuItem = get_data_array('id, parent', $_cms_menus_items_table, "id = {$menuItem['parent']}");
 	}
 
-	return $_cms_simple ? $path : "/$menuId{$path}";
+	return $path;
 }
 
 
@@ -113,26 +113,19 @@ function get_menu_item_id($level = 0)
 		return $menuId;
 
 	// path - путь от корн€ до текущего пункта меню включительно
-	$path = explode('/', get_menu_item_path($menuId));
-	array_shift($path);
-	$path[] =  $menuId;
+	static $path;
 
-	if (!$_cms_simple)
-		// убираем ид дерева меню
-		array_shift($path);
+	if (!$path)
+	{
+		$path = get_menu_item_path($menuId);
+		$path[] = $menuId;
+	}
 
 	$maxLevel = count($path);
 	if ($level <= $maxLevel)
-		return (int)$path[$level-1];
+		return (int)$path[$level - 1];
 	else
 		return -1;
-}
-
-function get_menu_root_id()
-{
-	global $pagePath;
-
-	return (int)$pagePath[0];
 }
 
 //------------------------------------------------------------------------------
