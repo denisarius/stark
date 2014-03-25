@@ -79,7 +79,7 @@ function get_menu_item_path($id, $parent = null, $menuId = null)
 function get_content()
 {
 	global $pagePath, $_cms_texts_table;
-	$text_id = (int)array_slice($pagePath, -1, 1);
+	$text_id = (int)end($pagePath);
 	return get_data_array('*', $_cms_texts_table, "menu_item=$text_id");
 }
 
@@ -96,9 +96,9 @@ function get_menu_item_id($level = 0)
 	global $pagePath, $_cms_simple;
 
 	// если последний элемент пути - число, то это ид меню
-	$p = array_slice($pagePath, -1, 1);
-	if (is_numeric($p[0]))
-		$menuId = (int)$p[0];
+	$p = end($pagePath);
+	if (is_numeric($p))
+		$menuId = (int)$p;
 	else
 	{
 		// иначе ид меню должен быть в предпоследнем элементе
