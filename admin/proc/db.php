@@ -2,9 +2,12 @@
 // -----------------------------------------------------------------------------
 function admin_check_db_structure($tables)
 {
-	global $_admin_db_structure;
+	global $_admin_db_structure, $_admin_root_path;
 
-    $db_name=get_data('database()');
+    if (!isset($_SESSION['db_config_crc'])) $_SESSION['db_config_crc']='no crc';
+	$crc=md5_file("$_admin_root_path/_config_db.php");
+	if ($_SESSION['db_config_crc']==$crc) return true;
+	$db_name=get_data('database()');
 	if ($db_name=='') return false;
 	foreach($_admin_db_structure as $table)
 	{
@@ -223,6 +226,7 @@ function admin_repair_db_structure($tables)
 	echo '</div><br><br>';
 	$html=ob_get_contents();
 	ob_end_clean();
+    $_SESSION['db_config_crc']=$crc;
 	return $html;
 }
 // -----------------------------------------------------------------------------
@@ -234,21 +238,25 @@ function admin_db_get_alter_field_primary_sql($table, $field)
 // -----------------------------------------------------------------------------
 function admin_db_get_alter_field_auto_sql($table, $field)
 {
-	$q="alter table `$table` modify `{$field['name']}` {$field['type']} not null auto_increment";
+	if (!array_key_exists('default', $field) && $field['null']) $null='null';
+	else $null='not null';
+	$q="alter table `$table` modify `{$field['name']}` {$field['type']} $null auto_increment";
+	if (array_key_exists('default', $field)) $q.=" default '{$field['default']}'";
 	return $q;
 }
 // -----------------------------------------------------------------------------
 function admin_db_get_alter_field_sql($table, $field)
 {
-	if ($field['null']) $null='null';
+	if (!array_key_exists('default', $field) && $field['null']) $null='null';
 	else $null='not null';
 	$q="alter table `$table` modify `{$field['name']}` {$field['type']} $null";
+	if (array_key_exists('default', $field)) $q.=" default '{$field['default']}'";
 	return $q;
 }
 // -----------------------------------------------------------------------------
 function admin_db_get_create_field_sql($table, $field)
 {
-	if (array_key_exists('default', $field) && $field['null']) $null='null';
+	if (!array_key_exists('default', $field) && $field['null']) $null='null';
 	else $null='not null';
 	$q="alter table `$table` add `{$field['name']}` {$field['type']} $null";
 	if (array_key_exists('default', $field)) $q.=" default '{$field['default']}'";
@@ -263,7 +271,7 @@ function admin_db_get_create_table_sql($table)
 	$pr='';
 	foreach($table['fields'] as $field)
 	{
-		if (array_key_exists('null', $field) && $field['null']) $null='null';
+		if (!array_key_exists('default', $field) && $field['null']) $null='null';
 		else $null='not null';
 		$q.="`{$field['name']}` {$field['type']} $null";
 		if (array_key_exists('default', $field)) $q.=" default '{$field['default']}'";

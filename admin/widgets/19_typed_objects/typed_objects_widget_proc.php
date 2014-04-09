@@ -29,7 +29,7 @@ function typed_objects_get_object_detail($obj_type, $prop_id)
 	return $prop;
 }
 //------------------------------------------------------------------------------
-function typed_objects_get_object_html($object)
+function typed_objects_get_object_html($object, $description)
 {
 	global $_base_site_images_url, $_base_site_objects_images_url;
 
@@ -37,15 +37,19 @@ function typed_objects_get_object_html($object)
 	$note=substr(strip_tags($note, '<br>'), 0, 256);
 	if ($object['visible']==1) $ch=' checked="checked"';
 	else $ch='';
+
 	if ($object['image']!='')
 		$img="$_base_site_objects_images_url/{$object['image']}";
 	else
 		$img="$_base_site_images_url/no_object_image.png";
+	if (isset($description['no_object_image']) && $description['no_object_image']==true) $image='';
+	else $image="<div class='typed_objects_object_node_image'><img src='$img' style='width:150px;'/></div>";
+
 	$obj_name_js=str2js($object['name']);
 	$html=<<<stop
 <div class="typed_objects_object_node" id="typed_objects_list_node_{$object['id']}">
 <div class="typed_objects_object_node_title" onClick="typed_objects_object_edit({$object['id']})">{$object['name']}</div>
-<div class="typed_objects_object_node_image"><img src="$img" style="width:150px;"/></div>
+$image
 <div class="typed_objects_object_node_note" >$note</div>
 <br>
 <input type="checkbox" id="typed_object_visible_{$object['id']}" onClick="typed_objects_toggle_visible({$object['id']})" $ch> Отображать на сайте
@@ -101,7 +105,10 @@ stop;
 	$total=get_data('FOUND_ROWS()');
 	$html.=get_admin_pager($total, $page, $_cms_objects_admin_list_page_length, 'typed_objects_show_objects_list_page');
 	while ($r=mysql_fetch_assoc($res))
-		$html.=typed_objects_get_object_html($r);
+	{
+		$description=typed_objects_get_object_description($r['type']);
+		$html.=typed_objects_get_object_html($r, $description);
+	}
 	$html.=get_admin_pager($total, $page, $_cms_objects_admin_list_page_length, 'typed_objects_show_objects_list_page');
 	return array('html'=>$html, 'page'=>$page);
 }
@@ -155,7 +162,7 @@ function typed_objects_get_edit_object_html($id, $type)
 <input type="hidden" id="typed_objects_edit_object_sy" value="$sy">
 stop;
 
-    if (isset($object_description['no_object_image']) && $object_description['no_object_image']==true)
+	if (isset($object_description['no_object_image']) && $object_description['no_object_image']==true)
 		$html.='<input type="hidden" id="typed_objects_object_image" value="">';
     if (isset($object_description['no_object_description']) && $object_description['no_object_description']==true)
 		$html.='<input type="hidden" id="typed_object_description" value="">';
@@ -210,6 +217,8 @@ stop;
     CKEDITOR.config.height= '200px';
 	CKEDITOR.config.format_tags = 'p';
 	CKEDITOR.config.baseFloatZIndex=100100;
+	CKEDITOR.config.forcePasteAsPlainText = true;
+	CKEDITOR.config.toolbarCanCollapse = false;
 	if (text_editor) CKEDITOR.remove(text_editor);
 	text_editor=CKEDITOR.replace('typed_object_description');
 </script>
@@ -263,7 +272,26 @@ function typed_objects_get_object_propertis_edit_html($id, $type)
 				else
 					$html.="<span>$v</span><input id='prop_{$obj_prop['id']}' name='{$obj_prop['id']}' type='hidden' value='$v' data-type='d'>";
 				break;
-			case 't':
+			case 'date':
+                $v=mysql2date(get_data('value', $_cms_objects_details, "node='$id' and typeId='{$obj_prop['id']}'"));
+				if (!isset($obj_prop['readonly']) || !$obj_prop['readonly'])
+					$html.=<<<stop
+<input type="text" class="typed_objects_edit_prop_type_date" id="prop_{$obj_prop['id']}" name="{$obj_prop['id']}" data-type="date" readonly="readonly" value="$v" $need />
+<script type="text/javascript">
+	$("#prop_{$obj_prop['id']}").datepicker({
+		autoSize: true,
+		dateFormat: "dd-mm-yy",
+		onSelect: function(dateText, inst)
+			{
+				$("#datepicker").css("display", "none");
+			}
+	});
+</script>
+stop;
+				else
+					$html.="<span>$v</span><input id='prop_{$obj_prop['id']}' name='{$obj_prop['id']}' type='hidden' value='$v' data-type='d'>";
+				break;
+			case 'text':
                 $v=get_data('value', $_cms_objects_details, "node='$id' and typeId='{$obj_prop['id']}'");
 				$html.="<textarea id='prop_{$obj_prop['id']}' name='{$obj_prop['id']}' style='width:100%;' $need>$v</textarea>";
 				break;
@@ -710,6 +738,13 @@ function typed_objects_save_object_data($id, $obj_type, $menu_item, $name, $note
 					foreach($ve as $v)
 						query("insert into $_cms_objects_details (node, typeId, type, value) values ('$id', '$k', '$type', '$v')");
 					break;
+				case 'date':	// string of date
+					$d=substr($v, 0, 2);
+					$m=substr($v, 3, 2);
+					$y=substr($v, 6, 4);
+					$date_v="$y-$m-$d";
+					query("insert into $_cms_objects_details (node, typeId, type, value) values ('$id', '$k', '$type', '$date_v')");
+					break;
 				default:
 					query("insert into $_cms_objects_details (node, typeId, type, value) values ('$id', '$k', '$type', '$v')");
 					break;
@@ -791,33 +826,69 @@ stop;
 	return $html;
 }
 // -----------------------------------------------------------------------------
+// Object copy routine
+// id			- ID object to copy
+// menu			- ID of menu_item (table $_cms_menus_items_table) to copy
+// copy_mode    - mode of operation (0-move; 1-copy)
+// -----------------------------------------------------------------------------
 function typed_objects_object_move($id, $menu, $copy_mode)
 {
 	global $_cms_objects_table, $_cms_objects_details, $_cms_gallery_table;
 	global $_base_site_galleries_path, $_cms_gallery_data_table;
+	global $_cms_text_parts, $_base_site_structured_text_images_path;
 
 	if(!$copy_mode)
     	query("update $_cms_objects_table set menu_item='$menu' where id='$id'");
 	else
 	{
-        $fields_list=mysql_get_fields_list($_cms_objects_table, 'id|menu_item');
+        // Create the new record in the objects table
+		$fields_list=mysql_get_fields_list($_cms_objects_table, 'id|menu_item');
 		query("insert into $_cms_objects_table (menu_item, $fields_list) select '$menu' as menu_item, $fields_list from $_cms_objects_table where id='$id'");
 		$new_id=mysql_insert_id();
+		// Createing the new rocords in the object details table
         $fields_list=mysql_get_fields_list($_cms_objects_details, 'id|node');
         query("insert into $_cms_objects_details (node, $fields_list) select $new_id as node, $fields_list from $_cms_objects_details where node='$id'");
-		$res=query("select * from $_cms_gallery_table where menu_item='$id' and link_type=1");
-		while ($r=mysql_fetch_assoc($res))
+		if (isset($_cms_gallery_table) && $_cms_gallery_table!='')
 		{
-			$dest=create_unique_file_name($_base_site_galleries_path, $r['file']);
-			$pp=pathinfo($dest);
-			$dest_thumb="$_base_site_galleries_path/thumbs/{$pp['basename']}";
-        	copy("$_base_site_galleries_path/{$r['file']}", $dest);
-        	copy("$_base_site_galleries_path/thumbs/{$r['file']}", $dest_thumb);
-			query("insert into $_cms_gallery_table (menu_item, file, title, comment, sort, visible, link_type) values ('$new_id', '{$pp['basename']}', '{$r['title']}', '{$r['comment']}', '{$r['sort']}', '{$r['visible']}', '{$r['link_type']}')");
+			// Copy linked gallery images and creating the new records in gallery table
+			$res=query("select * from $_cms_gallery_table where menu_item='$id' and link_type=1");
+			while ($r=mysql_fetch_assoc($res))
+			{
+				$dest=create_unique_file_name($_base_site_galleries_path, $r['file']);
+				$pp=pathinfo($dest);
+				$dest_thumb="$_base_site_galleries_path/thumbs/{$pp['basename']}";
+	        	copy("$_base_site_galleries_path/{$r['file']}", $dest);
+	        	copy("$_base_site_galleries_path/thumbs/{$r['file']}", $dest_thumb);
+				query("insert into $_cms_gallery_table (menu_item, file, title, comment, sort, visible, link_type) values ('$new_id', '{$pp['basename']}', '{$r['title']}', '{$r['comment']}', '{$r['sort']}', '{$r['visible']}', '{$r['link_type']}')");
+			}
+			mysql_free_result($res);
+			// Copy the gallery data record and link to new gallery (object)
+	        $fields_list=mysql_get_fields_list($_cms_gallery_data_table, 'id|menu_item');
+	        query("insert into $_cms_gallery_data_table (menu_item, $fields_list) select $new_id as menu_item, $fields_list from $_cms_gallery_data_table where menu_item='$id'");
 		}
-		mysql_free_result($res);
-        $fields_list=mysql_get_fields_list($_cms_gallery_data_table, 'id|menu_item');
-        query("insert into $_cms_gallery_data_table (menu_item, $fields_list) select $new_id as menu_item, $fields_list from $_cms_gallery_data_table where menu_item='$id'");
+		// Copy linked text parts images and change link to images in new text parts records
+		$resT=query("select * from $_cms_objects_details where node='$new_id' and type='st'");
+		echo "new ID[$new_id] ".mysql_num_rows($resT)."\n";
+        $fields_list=mysql_get_fields_list($_cms_text_parts, 'id|node');
+		while ($rt=mysql_fetch_assoc($resT))
+		{
+	    	// Copy text parts subobjects
+			$old_node=get_data('id', $_cms_objects_details, "node='$id' and typeID='{$rt['typeId']}'");
+	        query("insert into $_cms_text_parts (node, $fields_list) select {$rt['id']} as node, $fields_list from $_cms_text_parts where node='$old_node' and type=1");
+
+			$res=query("select * from $_cms_text_parts where node='{$rt['id']}'");
+			echo "text part ID[{$rt['id']}] ".mysql_num_rows($res)."\n";
+			while ($r=mysql_fetch_assoc($res))
+			{
+				$dest=create_unique_file_name($_base_site_structured_text_images_path, $r['image']);
+				$pp=pathinfo($dest);
+				echo "[{$r['id']}] $_base_site_structured_text_images_path/{$r['image']} -> $dest\n";
+	        	copy("$_base_site_structured_text_images_path/{$r['image']}", $dest);
+				query("update $_cms_text_parts set image='{$pp['basename']}' where id='{$r['id']}'");
+			}
+			mysql_free_result($res);
+		}
+		mysql_free_result($resT);
 	}
 }
 // -----------------------------------------------------------------------------
@@ -845,15 +916,19 @@ function typed_objects_object_delete($id)
 
 	query("delete from $_cms_objects_details where node='$id'");
 	query("delete from $_cms_objects_table where id='$id'");
-	$res=query("select * from $_cms_gallery_table where menu_item='$id' and link_type=1");
-	while($r=mysql_fetch_assoc($res))
+
+	if (isset($_cms_gallery_table) && $_cms_gallery_table!='')
 	{
-       	@unlink("$_base_site_galleries_path/{$r['file']}");
-       	@unlink("$_base_site_galleries_path/thumbs/{$r['file']}");
+		$res=query("select * from $_cms_gallery_table where menu_item='$id' and link_type=1");
+		while($r=mysql_fetch_assoc($res))
+		{
+	       	@unlink("$_base_site_galleries_path/{$r['file']}");
+	       	@unlink("$_base_site_galleries_path/thumbs/{$r['file']}");
+		}
+		mysql_free_result($res);
+		query("delete from $_cms_gallery_table where menu_item='$id' and link_type=1");
+		query("delete from $_cms_gallery_data_table where menu_item='$id' and link_type=1");
 	}
-	mysql_free_result($res);
-	query("delete from $_cms_gallery_table where menu_item='$id' and link_type=1");
-	query("delete from $_cms_gallery_data_table where menu_item='$id' and link_type=1");
 }
 // -----------------------------------------------------------------------------
 ?>

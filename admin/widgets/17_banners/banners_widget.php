@@ -32,11 +32,13 @@ public function get_addon_js()
 // -----------------------------------------------------------------------------
 public function show_start_screen()
 {
-    global $_languages;
+    global $_languages, $_cms_banners_description;
+
 	$language_id=$_languages[0]['id'];
-	if (count($_languages)<2) $language_selector_style='display:none';
+	if (count($_languages)<2) $language_selector_style='display:none;';
 	else $language_selector_style='';
 
+    $banner_type_selector=banners_get_banner_type_selector_html();
 	echo <<<stop
 <div class="cms_banners_container">
 <div style="$language_selector_style border-bottom:solid 1px #777; padding-bottom: 15px;"><b>Язык:</b> <select id="banners_language" style="margin-left: 20px; width: 300px;" onChange="banners_language_changed()">
@@ -48,13 +50,16 @@ stop;
 		$sl='';
 	}
 	echo <<<stop
-</select><br></div>
+</select><br>
+</div>
+$banner_type_selector
 
-<br><input type="button" value="Добавить баннер" id="banners_banner_add" onClick="banners_banner_add()">
+<input type="button" value="Добавить баннер" id="banners_banner_add" onClick="banners_banner_add()">
 
 <div id="banners_banners_list" class="banners_banners_list">
 stop;
-	echo banners_get_banners_list_html($language_id);
+	$keys=array_keys($_cms_banners_description);
+	echo banners_get_banners_list_html($language_id, $keys[0]);
 	echo <<<stop
 </div>
 </div>

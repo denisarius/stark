@@ -6,15 +6,15 @@ function numeral_form($number, $titles=array('комментарий','комментария','коммен
     return $titles[ ($number%100 >4 && $number%100< 20)? 2 : $cases[min($number%10, 5)] ];
 }
 //------------------------------------------------------------------------------
-function create_unique_file_name($_base_site_galleries_path, $mask, $length=16)
+function create_unique_file_name($path, $mask, $length=16)
 {
 	$pp=pathinfo($mask);
 	if ($length>32) $length=32;
     $prefix=substr(md5(time().rand()), 32-$length, $length);
 	$i=0;
-	while(file_exists("$_base_site_galleries_path/$prefix$i.{$pp['extension']}"))
+	while(file_exists("$path/$prefix$i.{$pp['extension']}"))
 		$i++;
-	return "$_base_site_galleries_path/$prefix$i.{$pp['extension']}";
+	return "$path/$prefix$i.{$pp['extension']}";
 }
 //------------------------------------------------------------------------------
 function create_thumbnail($img_file, $thumb_file, $ext, $image_max_dx=-1, $image_max_dy=-1, $thumbnail_size=-1)
@@ -44,10 +44,11 @@ function create_thumbnail($img_file, $thumb_file, $ext, $image_max_dx=-1, $image
 	}
 }
 //------------------------------------------------------------------------------
-function image_resize($im, $max_x, $max_y, $img_file, $ext, $max=0)
+function image_resize($im, $max_x, $max_y, $img_file, $ext, $max=0, $quality=0)
 {
 	global $_cms_images_jpeg_quality;
 
+	if ($quality==0 || $quality=='') $quality=$_cms_images_jpeg_quality;
 	$w=imagesx($im);
 	$h=imagesy($im);
 	$dx=$w/$max_x;
@@ -56,13 +57,13 @@ function image_resize($im, $max_x, $max_y, $img_file, $ext, $max=0)
 	else $d=min($dx, $dy);
 	$wn=$w/$d;
 	$hn=$h/$d;
-	$imd = imagecreatetruecolor($wn, $hn);
+	$imd=imagecreatetruecolor($wn, $hn);
 	imagecopyresampled($imd, $im, 0, 0, 0, 0, $wn, $hn, $w, $h);
 	switch($ext)
 	{
 		case 'jpg':
 		case 'jpeg':
-			imagejpeg($imd, $img_file, $_cms_images_jpeg_quality);
+			imagejpeg($imd, $img_file, $quality);
 			break;
 		case 'png':
 			imagepng($imd, $img_file);

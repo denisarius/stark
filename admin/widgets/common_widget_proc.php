@@ -134,6 +134,7 @@ function get_expand_menu_items_list($menu_items)
 /*------------------------------------------------------------------------------
 // генерация HTML для диалога выбора разделов
 // menu_id	- id изначально выбранного раздела. Если -1 то раздел не выбирается
+// menu_items	- список разрешенных id для выбираемых разделов (разделитель ',')
 // func		- функция вызываемая при выборе раздела
 //				func(menu_id, menu_item_id, menu_name, menu_item_name)
 //	  				menu_id 		- id корневого раздела
@@ -156,7 +157,7 @@ function common_get_menu_item_selector_html($menu_id, $menu_items, $func, $heigh
 		$res=query("select id, name from $_cms_menus_table order by id");
 		while($r=mysql_fetch_assoc($res))
 		{
-			$m_html=common_get_menu_item_selector_items_level_html($r['id'], $r['name'], $menu_items_expand, $menu_items, $func, 0);
+			$m_html=common_get_menu_item_selector_items_level_html($r['id'], $r['name'], $menu_items_expand, $menu_items, $func, 0, 5);
 			if ($m_html!='') $html.= <<<stop
 <h2>{$r['name']}</h2>
 $m_html
@@ -186,7 +187,7 @@ stop;
 	return $html;
 }
 //------------------------------------------------------------------------------
-function common_get_menu_item_selector_items_level_html($menu_id, $menu_name, $menu_items, $menu_items_src, $func, $parent)
+function common_get_menu_item_selector_items_level_html($menu_id, $menu_name, $menu_items, $menu_items_src, $func, $parent, $padding)
 {
 	global $_cms_menus_items_table;
 
@@ -209,10 +210,10 @@ function common_get_menu_item_selector_items_level_html($menu_id, $menu_name, $m
 stop;
 		else
 			$html.= <<<stop
-<div class="common_section_selector_item" onClick="$func($menu_id, {$r['id']}, '$m_name', '$mi_name')">{$r['name']}
+<div class="common_section_selector_item" style="padding-left: {$padding}px;" onClick="$func($menu_id, {$r['id']}, '$m_name', '$mi_name')">{$r['name']}
 stop;
-		$html.=common_get_menu_item_selector_items_level_html($menu_id, $menu_name, $menu_items, $menu_items_src, $func, $r['id']);
 		$html.='</div>';
+		$html.=common_get_menu_item_selector_items_level_html($menu_id, $menu_name, $menu_items, $menu_items_src, $func, $r['id'], $padding+20);
 	}
 	mysql_free_result($res);
 	return $html;
@@ -238,7 +239,7 @@ stop;
 		else
 			// Раздел отсутствует. Злобно ругаемся.
 			return <<<stop
-<div class="cms_menu_item_selector">Отсутствует раздел заданный в настройках виджета. Пожалуйста обратитесь к администратору сайта. (ID=$menu_item_id)</div>
+<div class="cms_menu_item_selector">Отсутствует раздел заданный в настройках виджета. Пожалуйста, обратитесь к администратору сайта. (IDs=$menu_item_id)</div>
 stop;
 	}
 
@@ -484,6 +485,66 @@ stop;
 	return $html;
 }
 //------------------------------------------------------------------------------
+// Генерация HTML кода для выбора объекта
+// func	- функция JavaScript которая вызывается после выбора объекта
+// 		func(object_id, name)
+//			object_id	- ID выбранного объекта
+//			name		- название выбранного объекта
+//------------------------------------------------------------------------------
+function common_get_link_object_html($func, $list_height=400)
+{
+	global $_cms_objects_table;
+
+	$res=query("select distinct menu_item from $_cms_objects_table");
+	if (!mysql_num_rows($res))
+		$html=<<<stop
+<h3>
+	<img src="images/admin_stop_icon_48.png" alt="" style="vertical-align: middle; displya:inline-block; margin-right:20px;"/>
+	<span style="vertical-align: middle; displya:inline-block;">На данный момент не создан ни один объект.</span>
+</h3>
+stop;
+	else
+	{
+		$allowed_menu_id='';
+		while($r=mysql_fetch_assoc($res))
+        	$allowed_menu_id.=",{$r['menu_item']}";
+        $allowed_menu_id=substr($allowed_menu_id, 1);
+		$menu_selector=common_get_menu_item_selector($allowed_menu_id, 'Выберите раздел' , 'common_object_select_menu_item_changed');
+		$html=<<<stop
+$menu_selector
+<input type="hidden" id="common_link_object_function_name" value="$func"/>
+<div id="common_link_object_objects_list" style="max-height: {$list_height}px;">
+</div>
+stop;
+	}
+	mysql_free_result($res);
+	return $html;
+}
+//------------------------------------------------------------------------------
+// Генерация HTML кода списка объектов при смене раздела в диалоге выбора объекта
+// menu_item_id	- ID раздела к которому относятся выбираемые объекты
+// func			- вызываемая при клике на объект JavaScript функция
+//------------------------------------------------------------------------------
+function common_get_link_object_objects_list_html($menu_item_id, $func)
+{
+	global $_cms_objects_table;
+
+	$html='<hr>';
+	$menu_item_id=(int)$menu_item_id;
+	$res=query("select * from $_cms_objects_table where menu_item='$menu_item_id' order by name");
+	while($r=mysql_fetch_assoc($res))
+	{
+		$object_name=str2js($r['name']);
+    	$html.=<<<stop
+<div class="common_object_select_object_list_node">
+	<div class="title" onClick="$func({$r['id']}, '$object_name')">{$r['name']}</div>
+</div>
+stop;
+	}
+	mysql_free_result($res);
+	return $html;
+}
+//------------------------------------------------------------------------------
 function common_get_documents_list_html($func)
 {
 	global $_cms_documents_table;
@@ -708,14 +769,14 @@ function common_get_signature_from_link_text($tag)
 // Генерация HTML кода для редактирования прицепленного документа
 function common_get_attachment_edit_html($id, $func)
 {
-	global $html_charset, $_admin_uploader_path;
+	global $html_charset, $_admin_uploader_path, $_base_site_attachments_path;
 
 	$attachment=pmGetAttachment($id);
-	if ($attachment===false) { $attachment['name']=''; $attachment['document']=''; }
+	if ($attachment===false) { $attachment['name']=''; $attachment['file']=''; }
 	else
 	{
-		$file=iconv ($html_charset, 'utf-8', $attachment['document']);
-    	copy($attachment['real_path'], "$_admin_uploader_path/$file");
+		$file=iconv ($html_charset, 'utf-8', $attachment['real_file']);
+    	copy("$_base_site_attachments_path/{$attachment['file']}", "$_admin_uploader_path/$file");
 	}
 	$attachment['name']=pmAntiXSSVar($attachment['name'], $html_charset);
 	$html=<<<stop
@@ -727,7 +788,7 @@ function common_get_attachment_edit_html($id, $func)
 
 	<div class="hdr">Имя файла:</div>
 	<div class="field">
-		<div id="common_attachment_edit_document">{$attachment['document']}</div>
+		<div id="common_attachment_edit_document">{$attachment['real_file']}</div>
 	</div>
 
 	<div id='common_attachment_button_holder'></div>
@@ -754,29 +815,32 @@ function common_attachment_save($attachment_id, $attachment_file, $attachment_na
 	{
 		// ничего не было приклеплено до этого момента
 		$dest=create_unique_file_name($_base_site_attachments_path, $attachment_file);
-		rename("$_admin_uploader_path/$attachment_file", $dest);
+		$pp=pathinfo($dest);
+		rename("$_admin_uploader_path/$attachment_file", "$_base_site_attachments_path/{$pp['basename']}");
 		$attachment_file=iconv ('utf-8', $html_charset, $attachment_file);
-		query("insert into _attachments (name, document, real_path) values ('$attachment_name', '$attachment_file', '$dest')");
+		query("insert into _attachments (name, real_file, file) values ('$attachment_name', '$attachment_file', '{$pp['basename']}')");
 		$attachment_id=mysql_insert_id();
 	}
 	else
 	{  	// файл уже был прикреплен
 		$attachment=pmGetAttachment($attachment_id);
-		@unlink("{$attachment['real_path']}");	// удаляем старый файл в любом случае
+		@unlink("$_base_site_attachments_path/{$attachment['file']}");	// удаляем старый файл в любом случае
 		$dest=create_unique_file_name($_base_site_attachments_path, $attachment_file);
-		rename("$_admin_uploader_path/$attachment_file", $dest);
+		$pp=pathinfo($dest);
+		rename("$_admin_uploader_path/$attachment_file", "$_base_site_attachments_path/{$pp['basename']}");
 		$attachment_file=iconv ('utf-8', $html_charset, $attachment_file);
-        query("update _attachments set name='$attachment_name', document='$attachment_file', real_path='$dest' where id='$attachment_id'");
+        query("update _attachments set name='$attachment_name', real_file='$attachment_file', file='{$pp['basename']}' where id='$attachment_id'");
 	}
 	return $attachment_id;
 }
 //------------------------------------------------------------------------------
 function common_attachment_delete($attachment_id)
 {
+	global $_base_site_attachments_path;
+
 	$attachment=pmGetAttachment($attachment_id);
-	print_r($attachment);
 	if ($attachment===false) return;
-	@unlink("{$attachment['real_path']}");	// удаляем старый файл в любом случае
+	@unlink("$_base_site_attachments_path/{$attachment['file']}");	// удаляем старый файл в любом случае
 	query("delete from _attachments where id='$attachment_id'");
 }
 //------------------------------------------------------------------------------

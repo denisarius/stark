@@ -34,7 +34,7 @@ stop;
 //------------------------------------------------------------------------------
 function dirs_get_dir_list_node($r)
 {
-	global $_cms_menus_items_table;
+	global $_cms_menus_items_table, $html_charset;
 
 	if (!$r['linked']) $link='';
 	else
@@ -42,9 +42,10 @@ function dirs_get_dir_list_node($r)
 		$menu=get_data('name', $_cms_menus_items_table, "id='{$r['linked']}'");
 		$link="<span>==> '$menu'</span>";
 	}
+	$content=htmlentities($r['content'], ENT_QUOTES, $html_charset);
 	$html=<<<stop
 <div class="dirs_value_node" id="dirs_value_node_{$r['id']}">
-<div class="dirs_value_name" id="dirs_dir_value_{$r['id']}">{$r['content']}$link</div>
+<div class="dirs_value_name" id="dirs_dir_value_{$r['id']}">{$content}$link</div>
 <div class="dirs_value_buttons">
 <img src="images/options_24.png" style="margin-right: 10px;" onClick="dirs_edit_value({$r['id']})" />
 <img src="images/delete_24.png"  onClick="dirs_delete_value({$r['id']})" />
@@ -101,17 +102,18 @@ function dirs_save_dir_data($id, $name)
 //------------------------------------------------------------------------------
 function dirs_get_edit_value_html($dir_id, $val_id)
 {
-	global $_cms_directories, $_cms_directories_data, $_cms_menus_items_table;
+	global $_cms_directories, $_cms_directories_data, $_cms_menus_items_table, $html_charset;
 
 	$dir=get_data('name', $_cms_directories, "id='$dir_id'");
 	if ($val_id==-1) $val=array('content'=>'', 'linked'=>0);
 	else $val=get_data_array('content, linked', $_cms_directories_data, "dir='$dir_id' and id='$val_id'");
 	if ($val['linked']==0) $link=array('name'=>'', 'id'=>0);
 	else $link=get_data_array('id, name', $_cms_menus_items_table, "id='{$val['linked']}'");
+	$content=htmlentities($val['content'], ENT_QUOTES, $html_charset);
 	$html=<<<stop
 <b>Cправочник: $dir</b><br><br>
 <b>Значение</b><br>
-<input type="text" id="dirs_value_content" value="{$val['content']}" style="width: 98%;"/>
+<input type="text" id="dirs_value_content" value="{$content}" style="width: 98%;"/>
 <div class="dirs_link_menu_block">
 <input type="hidden" id="dirs_link_to_menu_id" value="{$link['id']}" />
 <input type="button" class="admin_tool_button" value="Связать с разделом" onClick="dirs_link_to_menu()" />

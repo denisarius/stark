@@ -16,6 +16,8 @@ $_base_site_objects_images_url="$_base_site_root_url/data/objects";
 //				- e (enun) перечисление. Options содержит строку с перечисленными вариантами разделенным символом '|'. Например: стол|стул|кресло|табуретка
 //				- d (digital) число. Десятичное число с возможной дробной частью
 //				- i (image) изображение. Имя файа картинки. Фсе изображения содержаться в /data/object. Limit задает максимальное количество изображений для одного объекта
+//				- text текст. Просто блок плайн текста с <textarea>
+//				- date - дата. Выбор просиходит только с помощью календаря
 //				- c (checkbox) чекбокс. В БД записываются значения 0-выбран, 1-невыбран
 //				- s (string) строка
 //				- oo (once from objects). Единичная ссылка на объект. Значение - id объекта. Options задает тип объекта
@@ -34,45 +36,14 @@ $_base_site_objects_images_url="$_base_site_root_url/data/objects";
 // sx, sy	- размер изображения для типа 'st'
 // width	- размер окна редактирования параметра для типа 'tb'
 // columns	- список столбцов таблицы (разделитель '|'). Для типа 'tb'
+// readonly - свойство не редактируется в админке (если 'readoly'=>true)
 $_cms_objects_types=array(
 	array(
-		'id'=>'1', 'name'=>'Рецепты', 'menu_item_id'=>'3,4,5,6,7,8,9,10,11,12,13,14,15,20',
-		'sx'=>400, 'sy'=>400,
+		'id'=>'1', 'name'=>'Готовые решения', 'menu_item_id'=>'',
+		'sx'=>271, 'sy'=>194,
 		'details'=>array(
-			array('id'=>'dish_type', 'name'=>'Категория блюда', 'type'=>'do', 'options'=>1, 'need'=>true),
-			array('id'=>'author', 'name'=>'Автор', 'type'=>'s'),
-			array('id'=>'time', 'name'=>'Время приготовления (м)', 'type'=>'d', 'need'=>true),
-			array('id'=>'ingredients', 'name'=>'Ингредиенты', 'type'=>'tb', 'columns'=>'Название ингредиента|Кол-во', 'width'=>600),
-			array('id'=>'text', 'name'=>'Текст рецепта', 'type'=>'st', 'sx'=>200, 'sy'=>200),
-			array('id'=>'photo', 'name'=>'Финальные фото', 'type'=>'st', 'sx'=>600, 'sy'=>400),
-			array('id'=>'rating', 'name'=>'Рейтинг', 'type'=>'d', 'readonly'=>true, 'noshow'=>true),
-			array('id'=>'rating_count', 'name'=>'Количество голосовавших', 'type'=>'d', 'readonly'=>true, 'noshow'=>true),
-			array('id'=>'rating_ip', 'name'=>'IP последнего голосовавшего', 'type'=>'s', 'readonly'=>true, 'noshow'=>true),
-			array('id'=>'is_interest', 'name'=>'Интересное', 'type'=>'c'),
+			array('id'=>'rows', 'name'=>'Позиции', 'type'=>'tb', 'options'=>1, 'need'=>true),
 		)),
 
-	array(
-		'id'=>'2', 'name'=>'Советы', 'menu_item_id'=>'16',
-		'sx'=>400, 'sy'=>400,
-		'details'=>array(
-			array('id'=>'ingredients', 'name'=>'Ингредиенты', 'type'=>'tb', 'columns'=>'Название ингридиента|Кол-во', 'width'=>600),
-			array('id'=>'text', 'name'=>'Текст', 'type'=>'st', 'sx'=>200, 'sy'=>200),
-			array('id'=>'photo', 'name'=>'Финальные фото', 'type'=>'st', 'sx'=>600, 'sy'=>400),
-			array('id'=>'is_interest', 'name'=>'Интересное', 'type'=>'c'),
-		)),
-
-	array(
-		'id'=>'3', 'name'=>'Рестораны', 'menu_item_id'=>'17',
-		'sx'=>400, 'sy'=>400,
-		'details'=>array(
-			array('id'=>'photo', 'name'=>'Фото', 'type'=>'st', 'sx'=>600, 'sy'=>400),
-			array('id'=>'is_interest', 'name'=>'Интересное', 'type'=>'c'),
-		)),
-	array(
-		'id'=>'4', 'name'=>'Интересное', 'menu_item_id'=>'21',
-		'sx'=>400, 'sy'=>400,
-		'details'=>array(
-			array('id'=>'photo', 'name'=>'Фото', 'type'=>'st', 'sx'=>600, 'sy'=>400),
-		)),
 );
 ?>

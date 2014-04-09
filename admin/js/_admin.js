@@ -265,6 +265,12 @@ function admin_info_center()
 	$('#'+__info_center_id).screenCenter();
 }
 // -----------------------------------------------------------------------------
+function admin_info_set_width(w)
+{
+	__info_center_id=_admin_info_frames[_admin_info_frames.length-1];
+	$('#'+__info_center_id).css('width', w+'px');
+}
+// -----------------------------------------------------------------------------
 function admin_info_close()
 {
 	__info_close_id=_admin_info_frames[_admin_info_frames.length-1];

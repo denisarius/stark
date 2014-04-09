@@ -54,8 +54,8 @@
 		// Обработка временно закаченного изображения
 		case 'commonTempImageProcess':
 			importVars('file|sx|sy|max|quality', true);
-			if (!isset($sx)) $sx=-1;
-			if (!isset($sy)) $sy=-1;
+			if (!isset($sx) || $sx=='') $sx=-1;
+			if (!isset($sy) || $sy=='') $sy=-1;
 			if (!isset($max) || $max=='') $max=0;
 			if (!isset($quality) || $quality=='') $quality=0;
 			if (isset($file)) echo common_temp_image_process($file, $sx, $sy, $max, $quality);
@@ -75,6 +75,17 @@
 		case 'commonGetLinkMenuHTML':
 			importVars('func', false);
 			echo common_get_link_menu_html($func);
+			break;
+		// Генерация HTML кода для выбора объекта
+		case 'commonGetLinkObjectHTML':
+			$func=pmImportVarsList('func', false);
+			echo common_get_link_object_html($func);
+			break;
+		// Генерация HTML кода для списка объектов
+		case 'commonGetLinkObjectObjectsListHtml':
+			$vars=pmImportVarsList('menu_item_id|func', false);
+			if (!isset($vars['menu_item_id']) || $vars['menu_item_id']=='' || !isset($vars['func']) || $vars['func']=='') return;
+			echo common_get_link_object_objects_list_html($vars['menu_item_id'], $vars['func']);
 			break;
 		case 'commonGetLinkMenuItemsHTML':
 			importVars('menu|menu_name|func', true);
@@ -128,8 +139,8 @@
 			break;
 		// Удаление прикрепленного файла
 		case 'commonGetAttachmentDelete':
-			$attachmet_id=pmImportVarsList('attachmet_id', true);
-			if (!isset($attachmet_id) || $attachmet_id=='') return '';
+			$attachment_id=pmImportVarsList('attachmet_id', true);
+			if (!isset($attachment_id) || $attachment_id=='') return 'no attachment_id';
 			common_attachment_delete($attachment_id);
 			break;
 	}

@@ -421,6 +421,20 @@ function common_menu_item_select_menu_changed(func)
 	admin_info_center();
 }
 // ---------------------------------------------------------------------------------------
+// -- Выбор объекта
+// ---------------------------------------------------------------------------------------
+function common_object_select_menu_item_changed(menu_id, menu_item_id, menu_name, menu_item_name)
+{
+	$("#common_link_object_objects_list").html('<img src="images/'+loading_icon+'">');
+	func=$("#common_link_object_function_name").val();
+	res=execQuery(common_widget_ajax_manager_url, {section : "commonGetLinkObjectObjectsListHtml", menu_item_id: menu_item_id, func: func});
+	$("#common_link_object_objects_list").html(res);
+	admin_info_close();
+	info_id=admin_info_frame_id();
+	$('#'+info_id+' #widget_menu_item_selector').html(menu_name+' :: '+menu_item_name);;
+	admin_info_center();
+}
+// ---------------------------------------------------------------------------------------
 // -- Работа с прицепленными документами
 // ---------------------------------------------------------------------------------------
 var common_attachment_swfu, common_attachment_uploaded_files=new Array();
@@ -527,5 +541,6 @@ function common_attachment_save(func)
 function common_attachement_delete(attachmet_id)
 {
 	res=execQuery(common_widget_ajax_manager_url, {section : "commonGetAttachmentDelete", attachmet_id: attachmet_id});
-	alert(res);
+//	alert(res);
 }
+// -----------------------------------------------------------------------------

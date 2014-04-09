@@ -53,6 +53,24 @@ select.texts_selector_link_menu_menu_list {
 	border-radius: 3px;
 }
 /*******************************************************************************
+* Диалог выбора объекта
+*******************************************************************************/
+.common_object_select_object_list_node {
+	border: solid 1px #999;
+	border-radius: 4px;
+	cursor: pointer;
+	padding: 5px;
+	margin: 2px 0;
+}
+.common_object_select_object_list_node:hover {
+	border: solid 1px #555;
+	background-color: #f0f0f0;
+}
+.common_object_select_object_list_node > .title {
+	font-size: 16px;
+	color: #777;
+}
+/*******************************************************************************
 * Контейнер выбора константы
 *******************************************************************************/
 .constants_select_container div {

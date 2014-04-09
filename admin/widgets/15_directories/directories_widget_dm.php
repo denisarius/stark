@@ -58,10 +58,10 @@
 			if (isset($dir_id) && $dir_id!='') echo dirs_get_edit_value_html($dir_id, $val_id);
 			break;
 		case 'dirsDirValueSave':
-			importVars('dir_id|val_id|val|menu_id', true);
+			pmImportVars('dir_id|val_id|val|menu_id', true);
 			if (isset($dir_id) && $dir_id!='' && isset($val_id) && $val_id!='' && isset($val) && $val!='')
 			{
-				$val=mysql_safe(iconv ('utf-8', $html_charset, $val));
+				$val=iconv ('utf-8', $html_charset, $val);
 				echo dirs_save_dir_value($dir_id, $val_id, $val, $menu_id);
 			}
 			else

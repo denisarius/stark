@@ -42,7 +42,7 @@ $_admin_db_structure=array();
 	// sort		- порядок сортировки пунктов меню
 	// menu		- id меню к которому относится данный пункт
 	// visible	- признак отображения (0 - не отображается)
-	if (isset($_cms_menus_table) && $_cms_menus_table!='')
+	if (isset($_cms_menus_items_table) && $_cms_menus_items_table!='')
 	array_push($_admin_db_structure,
 		array('name'=>$_cms_menus_items_table,
 			'fields'=>array(
@@ -112,13 +112,14 @@ $_admin_db_structure=array();
 	);
 
 	// таблица новостей
-	// id		- уникальный id новости
-	// language	- ID языка новости
-	// date		- дата публикации новости
-	// content	- содержание новости
-	// image	- имя файла изображения для новости
-	// linked	- id связанного объекта (+n - текст; -n - пункт меню)
-	// visible	- признак отображения (0 - не отображается)
+	// id			- уникальный id новости
+	// language		- ID языка новости
+	// date			- дата публикации новости
+	// content		- содержание новости
+	// image		- имя файла изображения для новости
+	// linked		- id связанного объекта (+n - текст; -n - пункт меню)
+	// object_id	- id of linked object
+	// visible		- признак отображения (0 - не отображается)
 	if (isset($_cms_news_table) && $_cms_news_table!='')
 	array_push($_admin_db_structure,
 		array('name'=>$_cms_news_table,
@@ -131,6 +132,8 @@ $_admin_db_structure=array();
 				array('name'=>'content', 	'type'=>'text', 		'primary'=>false, 'null'=>true),
 				array('name'=>'image', 		'type'=>'varchar(254)',	'primary'=>false, 'null'=>true),
 				array('name'=>'linked',		'type'=>'int(11)', 		'primary'=>false, 'default'=>'0'),
+				array('name'=>'object_id',	'type'=>'int(11)', 		'primary'=>false, 'default'=>'0'),
+				array('name'=>'tag',		'type'=>'int(11)', 		'primary'=>false, 'default'=>'0'),
 				array('name'=>'visible',	'type'=>'int(1)', 		'primary'=>false, 'default'=>'0'),
 			),
 			'indexes'=>array(
@@ -522,7 +525,7 @@ $_admin_db_structure=array();
 					array('name'=>'id', 		'type'=>'int(11)',		'primary'=>true),
 					array('name'=>'node',  		'type'=>'int(11)',		'primary'=>false, 'default'=>'0'),
 					array('name'=>'typeId',	 	'type'=>'varchar(50)',	'primary'=>false, 'null'=>true),
-					array('name'=>'type', 		'type'=>'varchar(5)', 	'primary'=>false, 'null'=>true),
+					array('name'=>'type', 		'type'=>'varchar(10)', 	'primary'=>false, 'null'=>true),
 					array('name'=>'value',     	'type'=>'text',			'primary'=>false, 'null'=>true),
 				),
 				'indexes'=>array(
@@ -565,7 +568,12 @@ $_admin_db_structure=array();
 	// таблица изображений для баннеров
 	// id			- уникальный id баннера
 	// language		- ID языка баннера
+	// menu_item	- ID раздела к которому привязан баннер
+	// type			- ID типа баннера (=>$_cms_banners_description);
+	// text			- текст
 	// file			- имя файла изображения
+	// url			- URL ссылки с баннера
+	// link			- ID раздела на который ссылается баннер
 	// sort			- порядок сортировки изображений
 	// visible		- признак отображения (0 - не отображается)
 	if (isset($_cms_banners_table) && $_cms_banners_table!='')
@@ -574,7 +582,12 @@ $_admin_db_structure=array();
 				'fields'=>array(
 					array('name'=>'id', 		'type'=>'int(11)',		'primary'=>true),
 					array('name'=>'language',	'type'=>'varchar(5)',	'primary'=>false, 'null'=>true),
+					array('name'=>'menu_item',	'type'=>'int(11)',		'primary'=>false, 'default'=>'0'),
+					array('name'=>'type',		'type'=>'int(11)',		'primary'=>false, 'default'=>'0'),
 					array('name'=>'file',  		'type'=>'varchar(21)',	'primary'=>false, 'null'=>true),
+					array('name'=>'text', 	   	'type'=>'text',			'primary'=>false, 'null'=>true),
+					array('name'=>'url', 	   	'type'=>'text',			'primary'=>false, 'null'=>true),
+					array('name'=>'link',		'type'=>'int(11)',		'primary'=>false, 'default'=>'0'),
 					array('name'=>'sort',  		'type'=>'int(11)',		'primary'=>false, 'default'=>'0'),
 					array('name'=>'visible',	'type'=>'int(1)', 		'primary'=>false, 'default'=>'0'),
 				),
@@ -605,7 +618,7 @@ $_admin_db_structure=array();
 					array('name'=>'image',		'type'=>'varchar(255)', 'primary'=>false, 'null'=>true),
 					array('name'=>'content',	'type'=>'text', 		'primary'=>false, 'null'=>true),
 					array('name'=>'video',		'type'=>'text', 		'primary'=>false, 'null'=>true),
-					array('name'=>'attachment',	'type'=>'int(11)',		'primary'=>false, 'null'=>true),
+					array('name'=>'attachment',	'type'=>'int(10)',		'primary'=>false, 'null'=>true),
 					array('name'=>'url',		'type'=>'text', 		'primary'=>false, 'null'=>true),
 					array('name'=>'visible',	'type'=>'int(1)', 		'primary'=>false, 'default'=>'0'),
 				),
@@ -625,8 +638,8 @@ $_admin_db_structure=array();
 			'fields'=>array(
 				array('name'=>'id', 			'type'=>'int(11)',		'primary'=>true),
 				array('name'=>'name',			'type'=>'varchar(255)',	'primary'=>false, 'null'=>true),
-				array('name'=>'document',		'type'=>'varchar(255)',	'primary'=>false, 'null'=>true),
-				array('name'=>'real_path',		'type'=>'text',			'primary'=>false, 'null'=>true),
+				array('name'=>'file',			'type'=>'varchar(255)',	'primary'=>false, 'null'=>true),
+				array('name'=>'real_file',		'type'=>'varchar(255)',	'primary'=>false, 'null'=>true),
 			),
 			'indexes'=>array(
 			)

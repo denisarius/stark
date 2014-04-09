@@ -83,6 +83,8 @@ $(document).ready(function() {
         ['Table','HorizontalRule','SpecialChar']
     ];
 	CKEDITOR.on( 'instanceReady', function( e ){ admin_info_center(); } );
+	CKEDITOR.config.forcePasteAsPlainText = true;
+	CKEDITOR.config.toolbarCanCollapse = false;
 });
 </script>
 

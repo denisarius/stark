@@ -114,18 +114,38 @@
 		    require_once "$pmRootPath/_strings.php";
 			$link=connect_db();
 			$uri=$_SERVER['REQUEST_URI'];
-			$uri=substr($uri, strlen($_base_site_documents_url)+1);
-			$p=strpos($uri, '/');
-			if ($p!==false)
+			$type=pmImportVarsList('type');
+//			echo "[$type]<br>";
+			if ($type=='document' || $type=='')
+			{
+				$base_url=$_base_site_documents_url;
+				$documents_table=$_cms_documents_table;
+				$base_dir=$_base_site_documents_path;
+			}
+			elseif ($type=='attachment')
+			{
+				$base_url=$_base_site_attachments_url;
+				$documents_table='_attachments';
+				$base_dir=$_base_site_attachments_path;
+			}
+//			echo "base url: $base_url<br>";
+//			echo "table: $documents_table<br>";
+			$uri=substr($uri, strlen($base_url)+1);
+//			echo "uri [$uri]<br>";
+//			$p=strpos($uri, '/');
+//			echo "p [$p]<br>";
+/*			if ($p!==false)
 			{
 				$id=mysql_real_escape_string(substr($uri, 0, $p));
-				$doc=get_data_array('file, real_file', $_cms_documents_table, "id='$id'");
+				$doc=get_data_array('file, real_file', $documents_table, "id='$id'");
 			}
 			else
 			{
+*/
 				$id=mysql_real_escape_string($uri);
-				$doc=get_data_array('file, real_file', $_cms_documents_table, "file='$id'");
-            }
+				$doc=get_data_array('file, real_file', $documents_table, "file='$id'");
+//            }
+//			print_r($doc);
 			if ($id==-1 || $doc===false)
 			{
 			    header('HTTP/1.0 404 Not Found');
@@ -135,7 +155,7 @@ stop;
 			}
 			else
 			{
-				$fn="$_base_site_documents_path/{$doc['file']}";
+				$fn="$base_dir/{$doc['file']}";
 				$len=filesize($fn);
 				$pp=pathinfo($doc['real_file']);
 				$type=$_cms_documents_file_content_types[$pp['extension']];
@@ -143,6 +163,7 @@ stop;
 				header("Content-type: $type;");
 				header("Content-Disposition: attachment; filename=\"{$doc['real_file']}\"");
 				header("Content-Length: $len");
+//				echo "file: [$fn]<br>";
 				readfile($fn);
 			}
 			mysql_close($link);

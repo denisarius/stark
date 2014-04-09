@@ -1,0 +1,106 @@
+.cms_goods_container {
+	width: 715px;
+}
+
+#goods_menu_selector {
+	font-size: 20px;
+	font-weight: bold;
+	color: #999;
+	margin-top: 10px;
+	border-bottom: 1px #999 dashed;
+	padding-left: 10px;
+	cursor: pointer;
+}
+
+.cms_goods_list_item {
+	border: dashed 1px #ссс;
+	padding: 10px;
+	margin: 15px 0px 5px 0px;
+}
+
+.cms_goods_list_item_name {
+	font-size: 18px;
+	font-weight: bold;
+	color: #999;
+	cursor: pointer;
+	border-bottom: dashed 1px #999;
+	padding-bottom: 3px;
+	display: block;
+}
+
+.cms_goods_good_edit_box {
+	-moz-box-shadow: 0 0 3px 3px rgba(0,0,0, 0.25);
+	-webkit-box-shadow: 0 0 3px 3px rgba(0,0,0, 0.25);
+	box-shadow: 0 0 3px 3px rgba(0,0,0, 0.25);
+}
+
+.goods_filter_container {
+	padding: 10px;
+	border: solid 1px #ddd;
+	border-radius: 5px;
+}
+.goods_filter_container h3 {
+	cursor: pointer;
+	margin: 0px;
+	color: #777;
+	border-bottom: dashed 1px #999;
+}
+.goods_filter_container h3 img {
+	display: inline-block;
+	vertical-align: middle;
+	margin-right: 10px;
+}
+#goods_filter_data {
+	display: none;
+}
+.goods_filter_container table {
+	width: 99%;
+}
+.goods_filter_container table td:first-child {
+	width: 200px;
+}
+.goods_filter_container table td input[type=text] {
+	width: 99%;
+}
+
+.goods_property_dir_values {
+	cursor: pointer;
+	border-bottom: dashed 1px #000;
+	padding-bottom: 3px;
+}
+.goods_dir_select_node {
+	display: inline-block;
+	width: 320px;
+	margin: 5px 5px;
+}
+.goods_dir_select_node input[type=text]{
+	width: 30px;
+	margin: 0px 10px;
+	text-align: center;
+}
+.goods_good_type_selector {
+	font-weight: bold;
+	margin: 20px 0px 10px 5px;
+}
+.goods_good_type_selector select {
+	margin-left: 20px;
+	width: 610px;
+}
+.goods_dir_select_section {
+	border-bottom: 1px solid #D8D8D8;
+	font-size: 14px;
+	font-weight: bold;
+	margin-top: 10px;
+	padding-left: 10px;
+}
+.goods_dir_select_section_null {
+	padding-bottom: 4px;
+	margin-top: 4px;
+	border-bottom: solid 1px #d8d8d8;
+}
+
+#goods_good_edit_container {
+	padding: 10px;
+	margin-bottom: 20px;
+	border: solid 1px #ddd;
+}

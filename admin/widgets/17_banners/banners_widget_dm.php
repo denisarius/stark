@@ -36,41 +36,44 @@
 	{
 		// Генерация HTML кода списка изображений
 		case 'bannersGetBannersListHtml':
-			importVars('language', true);
-			if (!isset($language) || $language=='') return;
-			echo banners_get_banners_list_html($language);
+			$vars=pmImportVarsList('language|type', true);
+			if (!isset($vars['language']) || $vars['language']=='' || !isset($vars['type']) || $vars['type']=='') return;
+			$html=banners_get_banners_list_html($vars['language'], $vars['type']);
+			echo serialize_data('html|sx|sy|quality', $html, $_cms_banners_description[$vars['type']]['sx'], $_cms_banners_description[$vars['type']]['sy'], $_cms_banners_description[$vars['type']]['quality']);
 			break;
 		// Генерация HTML кода Для добавления изображения
 		case 'bannersGetBannerAddHtml':
-			echo banners_get_banner_add_html();
+			importVars('type', false);
+			echo banners_get_banner_add_html($type);
 			break;
 		// Обрезание изображения для баннера
 		case 'bannersCropImage':
-			importVars('file|x|y|w|h', false);
+			importVars('file|x|y|w|h|quality', false);
 			if (!isset($file) || $file=='' || !isset($x) || $x=='' || !isset($y) || $y=='' || !isset($w) || $w=='' || !isset($h) || $h=='') return;
-			echo banners_crop_banner_image("{$_SERVER['DOCUMENT_ROOT']}{$file}", $x, $y, $w, $h);
+			echo banners_crop_banner_image("{$_SERVER['DOCUMENT_ROOT']}{$file}", $x, $y, $w, $h, $quality);
 			break;
 		// Сохранение нового баннера
 		case 'bannersAddBannerSave':
-			importVars('file|language', false);
-			if (isset($file) && $file!='' && isset($language) && $language!='')
+			$vars=pmImportVarsList('file|language|type|menu_item|menu_link|text|url', false);
+			if (isset($vars['file']) && $vars['file']!='' && isset($vars['language']) && $vars['language']!='')
 			{
-				banners_banner_add_save($language, $file);
-				echo banners_get_banners_list_html($language);
+				$vars['text']=iconv ('utf-8', $html_charset, $vars['text']);
+				banners_banner_add_save($vars['language'], $vars['file'], $vars['type'], $vars['menu_item'], $vars['text'], $vars['url'], $vars['menu_link']);
+				echo banners_get_banners_list_html($vars['language'], $vars['type']);
 			}
 			else
 				echo 'error';
 			break;
 		// Удаление баннера
 		case 'bannersDeleteBanner':
-			importVars('id|language', true);
-			if (isset($id) && $id!='')
+			$vars=pmImportVarsList('id|type|language', true);
+			if (isset($vars['id']) && $vars['id']!='')
 			{
-                $banner=get_data_array('*', $_cms_banners_table, "id='$id'");
-				query("delete from $_cms_banners_table where id='$id'");
+                $banner=get_data_array('*', $_cms_banners_table, "id='{$vars['id']}'");
+				query("delete from $_cms_banners_table where id='{$vars['id']}'");
 				@unlink("$_base_site_banners_images_path/{$banner['file']}");
 			}
-			echo banners_get_banners_list_html($language);
+			echo banners_get_banners_list_html($vars['language'], $vars['type']);
 			break;
 	}
 	mysql_close($link);

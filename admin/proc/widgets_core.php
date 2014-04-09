@@ -224,7 +224,7 @@ stop;
 		}
         else
 		{
-			if ($_admin_check_db_once) $_SESSION['db_checked']=='yes';
+			if ($_admin_check_db_once) $_SESSION['db_checked']='yes';
 			return true;
 		}
 	}

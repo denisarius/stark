@@ -28,6 +28,16 @@
 	font-weight: bold;
 	color: #900;
 }
+.typed_objects_edit_prop_type_date {
+/*	padding: 3px 20px;
+	border: solid 1px #ddd;
+	border-radius: 4px;
+	display: inline-block;
+	min-height: 16px; */
+	width: 80px;
+	text-align: center;
+	cursor: pointer;
+}
 
 .typed_objects_object_node {
 	margin-bottom: 20px;

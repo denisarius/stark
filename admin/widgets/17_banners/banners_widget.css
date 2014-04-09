@@ -1,3 +1,7 @@
+.banners_type_selector_container {
+	margin-bottom: 10px;
+}
+
 .cms_banners_container {
 	margin-top: 10px;
 }
@@ -34,4 +38,34 @@
 }
 .banners_banner_list_node:hover {
 	border: solid 1px #555;
+}
+.banners_banner_list_node_description {
+	text-align: left;
+	margin-bottom: 10px;
+}
+.banners_banner_list_node_description div p {
+	margin: 0 0 5px 0;
+}
+
+.banner_edit_data_row {
+	margin-bottom: 10px;
+}
+.banner_edit_data_row .hdr {
+	font-weight: bold;
+	width: 80px;
+	display: inline-block;
+	vertical-align: middle;
+}
+.banner_edit_data_row .field {
+	width: 400px;
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.banner_edit_data_row .field input[type=text] {
+	width: 99%;
+}
+#banner_edit_menu_item_name {
+	display: inline-block;
+	margin-left: 15px;
 }
