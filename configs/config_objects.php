@@ -42,7 +42,7 @@ $_cms_objects_types=array(
 		'id'=>'1', 'name'=>'Готовые решения', 'menu_item_id'=>'',
 		'sx'=>271, 'sy'=>194,
 		'details'=>array(
-			array('id'=>'rows', 'name'=>'Позиции', 'type'=>'tb', 'options'=>1, 'need'=>true),
+			array('id'=>'rows', 'name'=>'Позиции', 'type'=>'tb', 'columns'=>'Название|Цена', 'width'=>600),
 		)),
 
 );
