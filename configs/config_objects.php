@@ -39,7 +39,7 @@ $_base_site_objects_images_url="$_base_site_root_url/data/objects";
 // readonly - свойство не редактируется в админке (если 'readoly'=>true)
 $_cms_objects_types=array(
 	array(
-		'id'=>'1', 'name'=>'Готовые решения', 'menu_item_id'=>'1',
+		'id'=>'1', 'name'=>'Готовые решения', 'menu_item_id'=>'17',
 		'sx'=>271, 'sy'=>194,
 		'details'=>array(
 			array('id'=>'rows', 'name'=>'Позиции', 'type'=>'tb', 'columns'=>'Название|Цена', 'width'=>600),
