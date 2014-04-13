@@ -342,7 +342,7 @@ $_cms_good_types=array(
 	array('id'=>'15', 'name'=>'Споты и трек-системы', 'details'=>array(
 		array('id'=>'maker', 'name'=>'Производитель', 'type'=>'do',  'options'=>'1', 'filter'=>true, 'need'=>true),
 		array('id'=>'country', 'name'=>'Страна', 'type'=>'do', 'options'=>'2', 'filter'=>true),
-		array('id'=>'type', 'name'=>'Категория', 'type'=>'do', 'options'=>'18', 'filter'=>true),
+		array('id'=>'type', 'name'=>'Категория', 'type'=>'do', 'options'=>'19', 'filter'=>true),
 		array('id'=>'height', 'name'=>'Высота (мм)', 'type'=>'d'),
 		array('id'=>'width', 'name'=>'Ширина (мм)', 'type'=>'d'),
 		array('id'=>'length', 'name'=>'Длинна (мм)', 'type'=>'d'),
@@ -362,27 +362,7 @@ $_cms_good_types=array(
 		array('id'=>'price', 'name'=>'"Цена"', 'type'=>'d'),
 	)),
 
-	array('id'=>'16', 'name'=>'Споты и трек-системы', 'details'=>array(
-		array('id'=>'maker', 'name'=>'Производитель', 'type'=>'do',  'options'=>'1', 'filter'=>true, 'need'=>true),
-		array('id'=>'country', 'name'=>'Страна', 'type'=>'do', 'options'=>'2', 'filter'=>true),
-		array('id'=>'height', 'name'=>'Высота (мм)', 'type'=>'d'),
-		array('id'=>'width', 'name'=>'Ширина (мм)', 'type'=>'d'),
-		array('id'=>'length', 'name'=>'Длинна (мм)', 'type'=>'d'),
-		array('id'=>'diametr', 'name'=>'Диаметр (мм)', 'type'=>'d'),
-		array('id'=>'offset', 'name'=>'Вылет (мм)', 'type'=>'d'),
-		array('id'=>'lamp_type', 'name'=>'Тип лампочки (основной)', 'type'=>'e',  'options'=>'E14|E27|G9|G4|R7S|GU10|GX5.3|GY6.35', 'need'=>true),
-		array('id'=>'power', 'name'=>'Мощность лампы(Вт)', 'type'=>'d', 'need'=>true),
-		array('id'=>'lamp_count', 'name'=>'Количество ламп', 'type'=>'d', 'need'=>true),
-		array('id'=>'area', 'name'=>'Площадь освещения м2', 'type'=>'d'),
-		array('id'=>'collection', 'name'=>'Коллекция', 'type'=>'s', 'filter'=>true),
-		array('id'=>'style', 'name'=>'Стиль светильника', 'type'=>'do',  'options'=>'3'),
-		array('id'=>'placing', 'name'=>'Способ размещения', 'type'=>'do',  'options'=>'4'),
-		array('id'=>'material', 'name'=>'Материал', 'type'=>'dm',  'options'=>'5'),
-		array('id'=>'color', 'name'=>'Цвет', 'type'=>'dm',  'options'=>'6'),
-		array('id'=>'color_glass', 'name'=>'Цвет стекла', 'type'=>'dm',  'options'=>'7'),
-		array('id'=>'lamps_exists', 'name'=>'Лампочки в комплекте', 'type'=>'c'),
-		array('id'=>'price', 'name'=>'"Цена"', 'type'=>'d'),
-	)),
+
 );
 
 $_order_statuses=array(0=>'Поставлен в очередь на обработку', 1=>'Ожидание поступления оплаты', 2=>'В процессе формирования', 3=>'Готов к выдаче', 999=>'Получен заказчиком');
