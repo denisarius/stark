@@ -1,50 +1,19 @@
 <div class="left_column_container">
 	<div class="content_info_container">
-		<h1>Готовые решения для Вашего интерьера</h1>
-		<p>Воспользуйтесь готовыми решениями и сориентируйтесь в ценах на установку натяжных потолков.</p>
-		<p>Мы предлагаем оптимальный набор материалов, комплектующих и работы по установке натяжного потолка.</p>
-		<p>Цены на готовые решения действуют при общей площади заказа от 30 м2.</p>
+		<?php _renderText(); ?>
 	</div>
 	<br>
 	<?php
 	global $_cms_objects_table, $pagePath;
 	$objectType = $pagePath[1];
-	$objects = get_data_array_rs('*', $_cms_objects_table, "type=$objectType");
+	$menuId = get_menu_item_id();
+	$objects = get_data_array_rs('*', $_cms_objects_table, "menu_item=$menuId AND type=$objectType");
 	while ($objectInfo = $objects->next())
 	{
 		_renderSolution($objectInfo);
 	}
 	?>
-	<!--<div class="content_info_solution">-->
-	<!--<div class="content_info_solution">-->
 </div>
-<div class="info_right_column_container">
-	<div class="managers_container">
-		<span></span>
-		<h1>Менеджеры</h1>
-		<div class="managers_node">
-			<img src="@!template@/images/pics/maneger.png" alt="">
-			<div class="managers_node_contacts">
-				<span class="managers_node_name">Юлия Певгонен</span>
-				<span class="managers_node_post">Старший менеджер</span>
-				<span class="managers_node_phone">8(8142) 67-67-67</span>
-				<span class="managers_node_post">e-mail: starkpot@mail.ru</span>
-			</div>
-			<br>
-		</div>
-		<div class="managers_node">
-			<img src="@!template@/images/pics/maneger.png" alt="">
-			<div class="managers_node_contacts">
-				<span class="managers_node_name">Юлия Певгонен</span>
-				<span class="managers_node_post">Старший менеджер</span>
-				<span class="managers_node_phone">8(8142) 67-67-67</span>
-				<span class="managers_node_post">e-mail: starkpot@mail.ru</span>
-			</div>
-			<br>
-		</div>
-	</div>
-</div>
-<br/>
 
 <?php
 function _renderSolution($objectInfo)
@@ -90,8 +59,11 @@ IL;
 $itemsLayout
 </ul>
 ITEMS;
-//	<li><span class="left">c-Light лаковая 5 м2</span>
-//<span class="right">1280 q</span>
-//<br>
-//</li>
+}
+
+function _renderText()
+{
+	global $_cms_texts_table;
+	$menuId = get_menu_item_id();
+	echo get_data('content', $_cms_texts_table, "menu_item=$menuId");
 }
