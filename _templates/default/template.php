@@ -1,12 +1,12 @@
 <?php
-	global $_languages, $language, $_scripts_libs_url, $pagePath, $html_charset;
-	global $_base_site_js_url, $_base_site_css_url;
+global $_languages, $language, $_scripts_libs_url, $pagePath, $html_charset;
+global $_base_site_js_url, $_base_site_css_url;
 
-	require_once pmIncludePath('design.php');
+require_once pmIncludePath('design.php');
 
-	$language=$_languages[0];
+$language = $_languages[0];
 
-	echo <<<stop
+echo <<<stop
 <!Doctype HTML>
 <html>
 <head>
@@ -26,19 +26,29 @@
 <@gadget_submenu>
 	<div class="content_container_center">
 stop;
-	switch($pagePath[0])
-	{
-        case 'order':
-			echo '<@gadget_content_header><@gadget_content_menu><@gadget_content11>';
-			break;
-		case 'solutions':
-			echo '<@gadget_content_header><@gadget_content_menu><@gadget_solutions><@gadget_managers>';
-			break;
-		// типовой макет
-		default: echo '<@gadget_content_header><@gadget_content_menu><@gadget_content>'; break;
-	}
+switch ($pagePath[0])
+{
+	case 'order':
+		echo '<@gadget_content_header><@gadget_content_menu><@gadget_content11>';
+		break;
+	case 'ceil_solutions':
+		echo '<@gadget_content_header><@gadget_content_menu><@gadget_ceil_solutions><@gadget_managers>';
+		break;
+	case 'lights':
+		require "$pmTemplatesPath/include/gadget_lights_classes.php";
+		echo '<@gadget_lights>';
+		break;
+	case 'lights_search':
+		echo '<@gadget_lights>';
+		break;
 
-	echo <<<stop
+	// типовой макет
+	default:
+		echo '<@gadget_content_header><@gadget_content_menu><@gadget_content>';
+		break;
+}
+
+echo <<<stop
 	</div>
 </div>
 <@gadget_footer>

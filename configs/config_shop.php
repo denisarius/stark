@@ -17,7 +17,7 @@ $_cms_goods_images_size_y=400;
 $_admin_good_title_suffix='collection|article';
 
 // ID меню магазина (пунктами меню являются категории товаров)
-$_shop_menu_id=2;
+$_shop_menu_id=3;
 
 // Параметры товаров
 // id		- уникальный id параметра
@@ -28,6 +28,7 @@ $_shop_menu_id=2;
 // limit	- количество данных для признака (например количество изображений для типа 'image')
 $_cms_good_types=array(
 	array('id'=>'1', 'name'=>'Люстры потолочные', 'details'=>array(
+		array('id'=>'image', 'name'=>'Изображение', 'type' => 'i', 'limit' => 1),
 		array('id'=>'maker', 'name'=>'Производитель', 'type'=>'do',  'options'=>'1', 'filter'=>true, 'need'=>true),
 		array('id'=>'country', 'name'=>'Страна', 'type'=>'do', 'options'=>'2', 'filter'=>true),
 		array('id'=>'type', 'name'=>'Категория', 'type'=>'do', 'options'=>'8', 'filter'=>true),
@@ -50,6 +51,7 @@ $_cms_good_types=array(
 	)),
 
 	array('id'=>'2', 'name'=>'Люстры подвесные', 'details'=>array(
+		array('id'=>'image', 'name'=>'Изображение', 'type' => 'i', 'limit' => 1),
 		array('id'=>'maker', 'name'=>'Производитель', 'type'=>'do',  'options'=>'1', 'filter'=>true, 'need'=>true),
 		array('id'=>'country', 'name'=>'Страна', 'type'=>'do', 'options'=>'2', 'filter'=>true),
 		array('id'=>'type', 'name'=>'Категория', 'type'=>'do', 'options'=>'9', 'filter'=>true),
@@ -72,6 +74,7 @@ $_cms_good_types=array(
 	)),
 
 	array('id'=>'3', 'name'=>'Бра', 'details'=>array(
+		array('id'=>'image', 'name'=>'Изображение', 'type' => 'i', 'limit' => 1),
 		array('id'=>'maker', 'name'=>'Производитель', 'type'=>'do',  'options'=>'1', 'filter'=>true, 'need'=>true),
 		array('id'=>'country', 'name'=>'Страна', 'type'=>'do', 'options'=>'2', 'filter'=>true),
 		array('id'=>'type', 'name'=>'Категория', 'type'=>'do', 'options'=>'10', 'filter'=>true),
@@ -95,6 +98,7 @@ $_cms_good_types=array(
 	)),
 
 	array('id'=>'4', 'name'=>'Детские светильники', 'details'=>array(
+		array('id'=>'image', 'name'=>'Изображение', 'type' => 'i', 'limit' => 1),
 		array('id'=>'maker', 'name'=>'Производитель', 'type'=>'do',  'options'=>'1', 'filter'=>true, 'need'=>true),
 		array('id'=>'country', 'name'=>'Страна', 'type'=>'do', 'options'=>'2', 'filter'=>true),
 		array('id'=>'height', 'name'=>'Высота (мм)', 'type'=>'d'),
@@ -116,6 +120,7 @@ $_cms_good_types=array(
 	)),
 
 	array('id'=>'5', 'name'=>'Светильники для кухни', 'details'=>array(
+		array('id'=>'image', 'name'=>'Изображение', 'type' => 'i', 'limit' => 1),
 		array('id'=>'maker', 'name'=>'Производитель', 'type'=>'do',  'options'=>'1', 'filter'=>true, 'need'=>true),
 		array('id'=>'country', 'name'=>'Страна', 'type'=>'do', 'options'=>'2', 'filter'=>true),
 		array('id'=>'type', 'name'=>'Категория', 'type'=>'do', 'options'=>'11', 'filter'=>true),
@@ -138,6 +143,7 @@ $_cms_good_types=array(
 	)),
 
 	array('id'=>'6', 'name'=>'Настенно потолочные светильники', 'details'=>array(
+		array('id'=>'image', 'name'=>'Изображение', 'type' => 'i', 'limit' => 1),
 		array('id'=>'maker', 'name'=>'Производитель', 'type'=>'do',  'options'=>'1', 'filter'=>true, 'need'=>true),
 		array('id'=>'country', 'name'=>'Страна', 'type'=>'do', 'options'=>'2', 'filter'=>true),
 		array('id'=>'type', 'name'=>'Категория', 'type'=>'do', 'options'=>'12', 'filter'=>true),
@@ -161,6 +167,7 @@ $_cms_good_types=array(
 	)),
 
 	array('id'=>'7', 'name'=>'Встраиваемый светильник', 'details'=>array(
+		array('id'=>'image', 'name'=>'Изображение', 'type' => 'i', 'limit' => 1),
 		array('id'=>'maker', 'name'=>'Производитель', 'type'=>'do',  'options'=>'1', 'filter'=>true, 'need'=>true),
 		array('id'=>'country', 'name'=>'Страна', 'type'=>'do', 'options'=>'2', 'filter'=>true),
 		array('id'=>'type', 'name'=>'Категория', 'type'=>'do', 'options'=>'13', 'filter'=>true),
@@ -184,6 +191,7 @@ $_cms_good_types=array(
 	)),
 
 	array('id'=>'8', 'name'=>'Светильники для ванной', 'details'=>array(
+		array('id'=>'image', 'name'=>'Изображение', 'type' => 'i', 'limit' => 1),
 		array('id'=>'maker', 'name'=>'Производитель', 'type'=>'do',  'options'=>'1', 'filter'=>true, 'need'=>true),
 		array('id'=>'country', 'name'=>'Страна', 'type'=>'do', 'options'=>'2', 'filter'=>true),
 		array('id'=>'type', 'name'=>'Категория', 'type'=>'do', 'options'=>'14', 'filter'=>true),
@@ -207,6 +215,7 @@ $_cms_good_types=array(
 	)),
 
 	array('id'=>'9', 'name'=>'Подсветка для картин и зеркал', 'details'=>array(
+		array('id'=>'image', 'name'=>'Изображение', 'type' => 'i', 'limit' => 1),
 		array('id'=>'maker', 'name'=>'Производитель', 'type'=>'do',  'options'=>'1', 'filter'=>true, 'need'=>true),
 		array('id'=>'country', 'name'=>'Страна', 'type'=>'do', 'options'=>'2', 'filter'=>true),
 		array('id'=>'height', 'name'=>'Высота (мм)', 'type'=>'d'),
@@ -229,6 +238,7 @@ $_cms_good_types=array(
 	)),
 
 	array('id'=>'10', 'name'=>'Подвесные светильники', 'details'=>array(
+		array('id'=>'image', 'name'=>'Изображение', 'type' => 'i', 'limit' => 1),
 		array('id'=>'maker', 'name'=>'Производитель', 'type'=>'do',  'options'=>'1', 'filter'=>true, 'need'=>true),
 		array('id'=>'country', 'name'=>'Страна', 'type'=>'do', 'options'=>'2', 'filter'=>true),
 		array('id'=>'type', 'name'=>'Категория', 'type'=>'do', 'options'=>'15', 'filter'=>true),
@@ -252,6 +262,7 @@ $_cms_good_types=array(
 	)),
 
 	array('id'=>'11', 'name'=>'Торшеры', 'details'=>array(
+		array('id'=>'image', 'name'=>'Изображение', 'type' => 'i', 'limit' => 1),
 		array('id'=>'maker', 'name'=>'Производитель', 'type'=>'do',  'options'=>'1', 'filter'=>true, 'need'=>true),
 		array('id'=>'country', 'name'=>'Страна', 'type'=>'do', 'options'=>'2', 'filter'=>true),
 		array('id'=>'type', 'name'=>'Категория', 'type'=>'do', 'options'=>'16', 'filter'=>true),
@@ -274,6 +285,7 @@ $_cms_good_types=array(
 	)),
 
 	array('id'=>'12', 'name'=>'Настольные лампы', 'details'=>array(
+		array('id'=>'image', 'name'=>'Изображение', 'type' => 'i', 'limit' => 1),
 		array('id'=>'maker', 'name'=>'Производитель', 'type'=>'do',  'options'=>'1', 'filter'=>true, 'need'=>true),
 		array('id'=>'country', 'name'=>'Страна', 'type'=>'do', 'options'=>'2', 'filter'=>true),
 		array('id'=>'type', 'name'=>'Категория', 'type'=>'do', 'options'=>'17', 'filter'=>true),
@@ -296,6 +308,7 @@ $_cms_good_types=array(
 	)),
 
 	array('id'=>'13', 'name'=>'Хрустальные люстры', 'details'=>array(
+		array('id'=>'image', 'name'=>'Изображение', 'type' => 'i', 'limit' => 1),
 		array('id'=>'maker', 'name'=>'Производитель', 'type'=>'do',  'options'=>'1', 'filter'=>true, 'need'=>true),
 		array('id'=>'country', 'name'=>'Страна', 'type'=>'do', 'options'=>'2', 'filter'=>true),
 		array('id'=>'height', 'name'=>'Высота (мм)', 'type'=>'d'),
@@ -317,6 +330,7 @@ $_cms_good_types=array(
 	)),
 
 	array('id'=>'14', 'name'=>'Светильники уличные', 'details'=>array(
+		array('id'=>'image', 'name'=>'Изображение', 'type' => 'i', 'limit' => 1),
 		array('id'=>'maker', 'name'=>'Производитель', 'type'=>'do',  'options'=>'1', 'filter'=>true, 'need'=>true),
 		array('id'=>'country', 'name'=>'Страна', 'type'=>'do', 'options'=>'2', 'filter'=>true),
 		array('id'=>'type', 'name'=>'Категория', 'type'=>'do', 'options'=>'18', 'filter'=>true),
@@ -340,6 +354,7 @@ $_cms_good_types=array(
 	)),
 
 	array('id'=>'15', 'name'=>'Споты и трек-системы', 'details'=>array(
+		array('id'=>'image', 'name'=>'Изображение', 'type' => 'i', 'limit' => 1),
 		array('id'=>'maker', 'name'=>'Производитель', 'type'=>'do',  'options'=>'1', 'filter'=>true, 'need'=>true),
 		array('id'=>'country', 'name'=>'Страна', 'type'=>'do', 'options'=>'2', 'filter'=>true),
 		array('id'=>'type', 'name'=>'Категория', 'type'=>'do', 'options'=>'19', 'filter'=>true),
