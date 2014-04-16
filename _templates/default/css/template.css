@@ -1032,6 +1032,14 @@ ul {
 	margin-bottom: 15px;
 }
 
+.right_column_node a {
+    text-decoration: none;
+}
+
+.right_column_node a:hover {
+    text-decoration: underline;
+}
+
 .right_column_node img{
 	width: 130px;
 	height: 130px;

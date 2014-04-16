@@ -1,8 +1,8 @@
 <?php
-$gadget = new GadgetLights();
+$gadget = new GadgetLightsList();
 ?>
 	<div class="left_menu_container">
-		<?php echo $gadget->_getTypesMenuLayout(); ?>
+		<?php echo $gadget->getTypesMenuLayout(); ?>
 		<div class="left_menu_filter">
 			<span>Фильтр</span>
 			<br>
@@ -25,7 +25,7 @@ $gadget = new GadgetLights();
 		</div>
 	</div>
 	<div class="right_column_container">
-		<h1><?php echo $gadget->getCurrentType(); ?></h1>
+		<h1><?php echo $gadget->getCurrentTypeName(); ?></h1>
 		<?php echo $gadget->getItemsLayout(); ?>
 	</div>
 	<br>

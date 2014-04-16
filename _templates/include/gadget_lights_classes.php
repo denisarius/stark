@@ -1,6 +1,10 @@
 <?php
 
-class GadgetLights
+
+/**
+ * Отвечает за базовые функции отображения каталога: вывод меню, доступ к информации из урла
+ */
+class GadgetLightsBase
 {
 	public function __construct()
 	{
@@ -8,12 +12,50 @@ class GadgetLights
 		$this->_typeId = $this->_urlData['type'];
 	}
 
-	function getCurrentType()
+	public function getTypeId()
+	{
+		return $this->_typeId;
+	}
+
+	public  function getTypesMenuLayout()
+	{
+		global $_cms_menus_items_table, $_shop_menu_id;
+		$types = get_data_array_rs('name, id', $_cms_menus_items_table, "menu=$_shop_menu_id AND parent=0");
+		$typesLayout = '';
+		while ($type = $types->next())
+		{
+			$link = $this->getSectionUrl($type['id']);
+			$class = ($type['id'] == $this->_typeId) ? 'class="current"' : '';
+			$typesLayout .= "<li $class ><a href=\"$link\">{$type['name']}</a></li>";
+		}
+		return "<ul>$typesLayout</ul>";
+	}
+
+	private  function getSectionUrl($lightType, $lightCategory = 0, $page = 0)
+	{
+		$menuId = get_menu_item_id();
+		return "/lights/$lightType/$lightCategory/$menuId/$page.html";
+	}
+
+	protected $_urlData;
+	// текущий (активный в меню) тип
+	private $_typeId;
+}
+
+
+class GadgetLightsList extends GadgetLightsBase
+{
+//	public function __construct()
+//	{
+//		parent::__construct();
+//	}
+
+	public function getCurrentTypeName()
 	{
 		global $_cms_menus_items_table;
 
 
-		$res = get_data('name', $_cms_menus_items_table, "id={$this->_typeId}");
+		$res = get_data('name', $_cms_menus_items_table, "id={$this->getTypeId()}");
 
 		if ($res === false)
 		{
@@ -24,11 +66,11 @@ class GadgetLights
 			return $res;
 	}
 
-	function getItemsLayout()
+	public function getItemsLayout()
 	{
 		global $_cms_goods_images_url, $_cms_tree_node_table;
 
-		$items = get_data_array_rs('*', $_cms_tree_node_table, "parent={$this->_typeId}");
+		$items = get_data_array_rs('*', $_cms_tree_node_table, "parent={$this->getTypeId()}");
 		$itemsLayout = '';
 		while ($item = $items->next())
 		{
@@ -51,6 +93,7 @@ class GadgetLights
 			);
 
 			$layoutParams['name'] = $item['name'];
+			$layoutParams['link_descr'] = UrlLights::getDetailsUrl($this->getTypeId(), $item['id']);
 
 			$itemsLayout .= $this->_getItemLayout($layoutParams);
 		}
@@ -84,7 +127,7 @@ class GadgetLights
 		return $ret;
 	}
 
-	public function _getItemLayout($params)
+	private function _getItemLayout($params)
 	{
 		$paramNames = array();
 		$paramValues = array();
@@ -97,29 +140,13 @@ class GadgetLights
 		return str_replace($paramNames, $paramValues, $this->_views['item']);
 	}
 
-	function _getTypesMenuLayout()
-	{
-		global $_cms_menus_items_table, $_shop_menu_id;
-		$types = get_data_array_rs('name, id', $_cms_menus_items_table, "menu=$_shop_menu_id AND parent=0");
-		$typesLayout = '';
-		while ($type = $types->next())
-		{
-			$link = UrlLights::getSectionUrl($type['id']);
-			$typesLayout .= "<li><a href=\"$link\">{$type['name']}</a></li>";
-		}
-		return "<ul>$typesLayout</ul>";
-	}
-
-
-	private $_urlData;
-	private $_typeId;
-
 	private $_views = array(
 		'item' => <<<ITEM
 <div class="right_column_node">
+	<a href="::link_descr::">
 	<img src="::image::">
-
 	<h2>::name::</h2>
+	</a>
 	<p>Производитель: ::maker::</p>
 	<span>::details::</span>
 	<div class="right_column_node_price">Цена: <span>::price::</span></div>
@@ -132,15 +159,19 @@ ITEM
 
 class UrlLights
 {
-	public static function getSectionUrl($lightType, $lightCategory = 0, $page = 0)
+
+	public static function getDetailsUrl($lightType, $itemId)
 	{
 		$menuId = get_menu_item_id();
-		return "/lights/$lightType/$lightCategory/$menuId/$page.html";
+		return "/light-descr/$lightType/$menuId/$itemId.html";
 	}
 
 	public static function parseUrl()
 	{
 		global $pagePath;
-		return array('type' => $pagePath[1], 'category' => $pagePath[2], 'page' => $pagePath[4]);
+		if ($pagePath[0] === 'lights')
+			return array('type' => $pagePath[1], 'category' => $pagePath[2], 'page' => $pagePath[4]);
+		elseif ($pagePath[0] === 'light-descr')
+			return $pagePath[2];
 	}
 }
