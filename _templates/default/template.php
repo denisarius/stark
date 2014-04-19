@@ -38,6 +38,10 @@ switch ($pagePath[0])
 		require "$pmTemplatesPath/include/gadget_lights_classes.php";
 		echo '<@gadget_lights>';
 		break;
+	case 'light-details':
+		require "$pmTemplatesPath/include/gadget_lights_classes.php";
+		echo '<@gadget_lights_details>';
+		break;
 	case 'lights_search':
 		echo '<@gadget_lights>';
 		break;
