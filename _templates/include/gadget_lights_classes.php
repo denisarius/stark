@@ -47,31 +47,87 @@ class GadgetLightsBase
 		return "<ul>$typesLayout</ul>";
 	}
 
-	protected function _getDetails($itemId, $paramNames, $paramLabels, $template = '@label@: @value@')
+	/**
+	 * Формирует сверстанный блок характерирсик товара.
+	 *
+	 * @param int $itemId ид товара
+	 * @param array $params описание характеристик,
+	 *   формат: array(
+	 *                '<ид (тип) хар-ки в БД>' => array(
+	 *                    <название>, // отображаемое название характеристики
+	 *                    <порядк. номер>, // позиция при выводе
+	 *                    ['get_opts' => array()], // параметры запроса характеристики, см. shop_get_goods_details когда type - массив
+	 *                    ['units' => { string | array() } // единицы измерения (string) или преобразование значения характеристики (array).
+	 *                        в случае единиц измерения к значению будет добавлена указанная строка (напр., 20 -> 20 Вт).
+	 *                        в случае с массивом значение будет заменено на элемент переданного массива с ключом, равным значению (0|1 -> 'да'|'нет')
+	 *                ),
+	 *           )
+	 * @param array $readyParams формат: array('size' => <info_1>, <info_2>, ... ,<info_n>)
+	 *   <info> ::=   array(<название>, <порядк. номер>, <значение>, )
+	 * @param string $template шаблон вывода характеристики, содержащий теги @label@ и @value@
+	 * @param string $splitter разделитель при выводе характеристик (в шаблоне)
+	 *
+	 * @return string
+	 */
+	protected function _getDetails($itemId, $params, $readyParams, $template, $splitter = '')
 	{
-		$details = shop_get_goods_details($itemId, $paramNames);
+		$detailParams = array();
+		foreach(array_keys($params) as $paramName)
+		{
+			if (isset($params[$paramName]['get_opt']))
+			{
+				$detailParams[$paramName] = $params[$paramName]['get_opt'];
+				unset($params[$paramName]['get_opt']);
+			}
+			else
+				$detailParams[] = $paramName;
+		}
+		$details = shop_get_goods_details($itemId, $detailParams);
 
 		// превращаем измерения размера в один параметр size
 		if (@$details['height'] && @$details['length'] && @$details['width'])
 		{
-			$details['size'] = implode(
+			$readyParams['size'][2] = implode(
 				'x',
 				array_intersect_key($details, array('height' => 1, 'length' => 1, 'width' => 1))
 			);
 		}
-		unset($details['height'], $details['length'], $details['width']);
+		unset($params['height'], $params['length'], $params['width']);
 
-		// формируем строки '<параметр> <значение>' по переданному шаблону
-		$ret = array();
-		foreach ($paramLabels as $name => $label)
+
+		foreach ($params as $name => $info)
 		{
-			if (isset($details[$name]))
+			$info[] = $details[$name];
+			$readyParams[] = $info;
+		}
+
+		// тут readyParams имеет формат
+		usort($readyParams, function($a, $b) { return $a[1] - $b[1];});
+		$ret = array();
+		foreach ($readyParams as $info)
+		{
+			unset($info[1]);
+			if (isset($info[2]))
 			{
-				$ret[] = str_replace(array('@label@', '@value@'), array($label, $details[$name]), $template);
+				if (isset($info['units']))
+				{
+					$units = $info['units'];
+					unset($info['units']);
+
+					if (is_array($units))
+						$info[2] = $units[$info[2]];
+					else
+						$info[2] .= " $units";
+
+
+				}
+				if (is_array($info[2]))
+					$info[2] = implode(', ', $info[2]);
+				$ret[] = str_replace(array('@label@', '@value@'), $info, $template);
 			}
 		}
 
-		return $ret;
+		return implode($splitter, $ret);
 	}
 
 	protected function renderTemplate($params, $template)
@@ -129,19 +185,35 @@ class GadgetLightDetails extends GadgetLightsBase
 		$layoutParams = shop_get_goods_details($this->_id, array('image', 'maker', 'price'));
 		$layoutParams['image'] = "$_cms_goods_images_url/{$layoutParams['image']}";
 
-		$detailNames = array('country', 'length', 'width', 'height', 'diametr', 'lamp_type');
-		$layoutParams['details'] = implode('',$this->_getDetails(
+//		$detailNames = array('country', 'diametr', 'lamp_type');
+		$layoutParams['details'] = $this->_getDetails(
 			$this->_id,
-			$detailNames,
 			array(
-				'maker' => 'Производитель',
-				'size' => 'Размеры ВхДхШ',
-				'diametr' => 'Диаметр',
-				'lamp_type' => 'Тип лампочки (основной)',
-				'country' => 'Страна'
+				'country' => array('Страна', 10),
+				'diametr' => array('Диаметр', 20),
+				'lamp_type' => array('Тип лампочки (основной)', 25),
+				'power' => array('Мощность лампы', 30, 'units' => 'Вт'),
+				'lamp_count' => array('Количество ламп', 35),
+				'area' => array('Площадь освещения', 40, 'units' => 'м2'),
+				'collection' => array('Коллекция', 45),
+				'type' => array('Категория', 50),
+				'style' => array('Стиль светильника', 55),
+				'placing' => array('Способ размещения', 60),
+				'material' => array('Материал', 65),
+				'color' => array('Цвет', 70, 'get_opt' => array('count' => 100)),
+				'color_glass' => array('Цвет стекла', 75),
+				'lamps_exists' => array('Лампочки в комплекте', 80, 'units' => array(0 => 'нет', 1 => 'есть')),
+				'height' => '',
+				'length' => '',
+				'width' => ''
+			),
+			array(
+				array('Артикул', 0, $item['code']),
+				array('Производитель',5, $layoutParams['maker']),
+				'size' => array('Размеры ВхДхШ', 15, 'units' => 'мм'),
 			),
 			'<li><span class="left">@label@</span><span class="right">@value@</span></li>'
-		));
+		);
 
 		$layoutParams['name'] = $item['name'];
 
@@ -161,7 +233,7 @@ class GadgetLightDetails extends GadgetLightsBase
 			<br>
 			<div class="product_info_order">
 								<span>Под заказ<br>
-								Цена:<span> ::price:: р.</span></span>
+								Цена:<span> ::price:: &#8381;</span></span>
 			</div>
 			<div clsas=""></div>
 			<div class="product_info_about_tosearch">К результатам поиска</div>
@@ -209,20 +281,22 @@ class GadgetLightsList extends GadgetLightsBase
 			$layoutParams = shop_get_goods_details($item['id'], array('image', 'maker', 'price'));
 			$layoutParams['image'] = "$_cms_goods_images_url/thumbs/{$layoutParams['image']}";
 
-			$detailNames = array('country', 'length', 'width', 'height', 'diametr', 'lamp_type');
-			$layoutParams['details'] = implode(
-				'<br/>',
+//			$detailNames = array('country', 'length', 'width', 'height', 'diametr', 'lamp_type');
+			$layoutParams['details'] =
 				$this->_getDetails(
 					$item['id'],
-					$detailNames,
 					array(
-						'size' => 'Размеры',
-						'diametr' => 'Диаметр',
-						'lamp_type' => 'Тип ламп',
-						'country' => 'Производство'
-					)
-				)
-			);
+						'diametr' => array('Диаметр', 1),
+						'lamp_type' => array('Тип ламп', 2),
+						'country' => array('Производство',3),
+						'length' => '',
+						'width' => '',
+						'height' => ''
+					),
+					array('size' => array('Размеры', 0)),
+					'@label@: @value@',
+					'<br/>'
+				);
 
 			$layoutParams['name'] = $item['name'];
 			$layoutParams['link_details'] = $this->getDetailsUrl($this->getCurrentTypeId(), $item['id']);
@@ -242,7 +316,7 @@ class GadgetLightsList extends GadgetLightsBase
 	</a>
 	<p>Производитель: ::maker::</p>
 	<span>::details::</span>
-	<div class="right_column_node_price">Цена: <span>::price::</span></div>
+	<div class="right_column_node_price">Цена: <span>::price:: &#8381;</span></div>
 	<div class="right_column_node_button">Подобрать</div>
 </div>
 ITEM
