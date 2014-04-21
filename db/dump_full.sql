@@ -54,7 +54,7 @@ CREATE TABLE `_temp_files` (
   `file` varchar(254) DEFAULT NULL,
   `created` date NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=17 DEFAULT CHARSET=cp1251;
+) ENGINE=MyISAM AUTO_INCREMENT=18 DEFAULT CHARSET=cp1251;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -63,7 +63,7 @@ CREATE TABLE `_temp_files` (
 
 LOCK TABLES `_temp_files` WRITE;
 /*!40000 ALTER TABLE `_temp_files` DISABLE KEYS */;
-INSERT INTO `_temp_files` VALUES (1,'objects','2014-04-11'),(2,'objects','2014-04-11'),(3,'a6a77ebdeade2d800.','2014-04-11'),(4,'78fae12829bf55e30.jpg','2014-04-11'),(5,'95cae998c6f640a40.jpg','2014-04-12'),(6,'f8988374bf6157ef0.png','2014-04-12'),(7,'6341d1948801b9120.png','2014-04-12'),(8,'6341d1948801b9120.png','2014-04-12'),(9,'51daab652b4edd4e0.png','2014-04-12'),(10,'51daab652b4edd4e0.png','2014-04-12'),(11,'51daab652b4edd4e0.png','2014-04-12'),(12,'51daab652b4edd4e0.png','2014-04-12'),(13,'3833572040b44c120.png','2014-04-12'),(14,'51daab652b4edd4e0.png','2014-04-12'),(15,'7360062e3c200cdc0.png','2014-04-12'),(16,'7360062e3c200cdc0.png','2014-04-12');
+INSERT INTO `_temp_files` VALUES (1,'objects','2014-04-11'),(2,'objects','2014-04-11'),(3,'a6a77ebdeade2d800.','2014-04-11'),(4,'78fae12829bf55e30.jpg','2014-04-11'),(5,'95cae998c6f640a40.jpg','2014-04-12'),(6,'f8988374bf6157ef0.png','2014-04-12'),(7,'6341d1948801b9120.png','2014-04-12'),(8,'6341d1948801b9120.png','2014-04-12'),(9,'51daab652b4edd4e0.png','2014-04-12'),(10,'51daab652b4edd4e0.png','2014-04-12'),(11,'51daab652b4edd4e0.png','2014-04-12'),(12,'51daab652b4edd4e0.png','2014-04-12'),(13,'3833572040b44c120.png','2014-04-12'),(14,'51daab652b4edd4e0.png','2014-04-12'),(15,'7360062e3c200cdc0.png','2014-04-12'),(16,'7360062e3c200cdc0.png','2014-04-12'),(17,'7360062e3c200cdc0.png','2014-04-12');
 /*!40000 ALTER TABLE `_temp_files` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -161,7 +161,7 @@ CREATE TABLE `directories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(254) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=cp1251;
+) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=cp1251;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -170,6 +170,7 @@ CREATE TABLE `directories` (
 
 LOCK TABLES `directories` WRITE;
 /*!40000 ALTER TABLE `directories` DISABLE KEYS */;
+INSERT INTO `directories` VALUES (1,'производитель'),(2,'производство'),(3,'Стиль светильника'),(4,'Способ размещения'),(5,'Материал'),(6,'Цвет'),(7,'Цвет стекла'),(8,'Категории люстр потолочных'),(9,'Категории люстр подвесных'),(10,'Категории бра');
 /*!40000 ALTER TABLE `directories` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -187,7 +188,7 @@ CREATE TABLE `directories_data` (
   `linked` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `dc` (`dir`,`content`)
-) ENGINE=MyISAM DEFAULT CHARSET=cp1251;
+) ENGINE=MyISAM AUTO_INCREMENT=24 DEFAULT CHARSET=cp1251;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -196,6 +197,7 @@ CREATE TABLE `directories_data` (
 
 LOCK TABLES `directories_data` WRITE;
 /*!40000 ALTER TABLE `directories_data` DISABLE KEYS */;
+INSERT INTO `directories_data` VALUES (1,1,'ODEON LIGHT',0),(2,2,'Китай',0),(3,3,'очень стильный',0),(4,4,'на потолке',0),(5,4,'на стене',0),(6,4,'на столе',0),(7,4,'под столом :)',0),(8,5,'стекло',0),(9,5,'металл',0),(11,5,'ткань',0),(12,6,'бежевый',0),(13,6,'голубой',0),(14,6,'светло-желтый',0),(15,7,'белый',0),(16,7,'прозрачный',0),(17,7,'прозрачный матовый',0),(18,8,'ЛП-1',0),(19,8,'ЛП-2',0),(20,9,'ЛПодв-1',0),(21,9,'ЛПодв-2',0),(22,10,'Бр-1',0),(23,10,'Бр-2',0);
 /*!40000 ALTER TABLE `directories_data` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -210,7 +212,7 @@ CREATE TABLE `menus` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(254) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=cp1251;
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=cp1251;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -219,7 +221,7 @@ CREATE TABLE `menus` (
 
 LOCK TABLES `menus` WRITE;
 /*!40000 ALTER TABLE `menus` DISABLE KEYS */;
-INSERT INTO `menus` VALUES (1,'Основной раздел'),(2,'Расширенное меню');
+INSERT INTO `menus` VALUES (1,'Основной раздел'),(2,'Расширенное меню'),(3,'Люстры');
 /*!40000 ALTER TABLE `menus` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -240,7 +242,7 @@ CREATE TABLE `menus_items` (
   `visible` int(1) NOT NULL DEFAULT '0',
   `tag` varchar(254) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=28 DEFAULT CHARSET=cp1251;
+) ENGINE=MyISAM AUTO_INCREMENT=43 DEFAULT CHARSET=cp1251;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -249,7 +251,7 @@ CREATE TABLE `menus_items` (
 
 LOCK TABLES `menus_items` WRITE;
 /*!40000 ALTER TABLE `menus_items` DISABLE KEYS */;
-INSERT INTO `menus_items` VALUES (1,'О КОМПАНИИ','',0,1,1,1,NULL),(2,'ВАКАНСИИ','',0,2,1,1,NULL),(3,'ВОПРОС-ОТВЕТ','/faq.html',0,3,1,1,''),(4,'СТАТЬ ДИЛЕРОМ','',0,4,1,1,NULL),(5,'КОНТАКТЫ','',0,5,1,1,NULL),(6,'ПОЧЕМУ МЫ','',1,1,1,1,NULL),(7,'НАША КОМАНДА','/staff.html',1,2,1,1,''),(8,'АКЦИИ, КУПОНЫ','/actions.html',1,3,1,1,''),(9,'ОТЗЫВЫ КЛИЕНТОВ','/feedback.html',1,4,1,1,''),(10,'ПАРТНЕРЫ','',1,5,1,1,NULL),(11,'Потолки','',0,1,2,1,NULL),(12,'Люстры','',0,2,2,1,NULL),(13,'Жалюзи','',0,3,2,1,NULL),(14,'Окна','',0,4,2,1,NULL),(15,'О ПОТОЛКАХ','',11,1,2,1,NULL),(16,'КАК СДЕЛАТЬ ЗАКАЗ','',11,2,2,1,NULL),(17,'ГОТОВЫЕ РЕШЕНИЯ','/solutions/1',11,3,2,1,''),(18,'ФАКТУРЫ','',11,4,2,1,NULL),(19,'О ЖАЛЮЗИ','',13,1,2,1,NULL),(20,'ГОТОВЫЕ РЕШЕНИЯ','',13,2,2,1,NULL),(21,'СИСТЕМЫ','',13,3,2,1,NULL),(22,'ПРЕИМУЩЕСТВА НАТЯЖНЫХ ПОТОЛКОВ','',15,1,2,1,NULL),(24,'УСТАНОВКА ПОТОЛКОВ','',15,2,2,1,NULL),(25,'РЕМОНТ','',15,3,2,1,NULL),(26,'ЧТО ДЕЛАТЬ?','',16,1,2,1,NULL),(27,'ЗАЯВКА НА ЗАМЕР','',16,2,2,1,NULL);
+INSERT INTO `menus_items` VALUES (1,'О КОМПАНИИ','',0,1,1,1,''),(2,'ВАКАНСИИ','',0,2,1,1,''),(3,'ВОПРОС-ОТВЕТ','/faq.html',0,3,1,1,''),(4,'СТАТЬ ДИЛЕРОМ','',0,4,1,1,''),(5,'КОНТАКТЫ','',0,5,1,1,''),(6,'ПОЧЕМУ МЫ','',1,1,1,1,''),(7,'НАША КОМАНДА','/staff.html',1,2,1,1,''),(8,'АКЦИИ, КУПОНЫ','/actions.html',1,3,1,1,''),(9,'ОТЗЫВЫ КЛИЕНТОВ','/feedback.html',1,4,1,1,''),(10,'ПАРТНЕРЫ','',1,5,1,1,''),(11,'Потолки','',0,1,2,1,''),(12,'Люстры','/lights',0,2,2,1,''),(13,'Жалюзи','',0,3,2,1,''),(14,'Окна','',0,4,2,1,''),(15,'О ПОТОЛКАХ','',11,1,2,1,''),(16,'КАК СДЕЛАТЬ ЗАКАЗ','',11,2,2,1,''),(17,'ГОТОВЫЕ РЕШЕНИЯ','/ceil_solutions/1',11,3,2,1,''),(18,'ФАКТУРЫ','',11,4,2,1,''),(19,'О ЖАЛЮЗИ','',13,1,2,1,''),(20,'ГОТОВЫЕ РЕШЕНИЯ','',13,2,2,1,''),(21,'СИСТЕМЫ','',13,3,2,1,''),(22,'ПРЕИМУЩЕСТВА НАТЯЖНЫХ ПОТОЛКОВ','',15,1,2,1,''),(24,'УСТАНОВКА ПОТОЛКОВ','',15,2,2,1,''),(25,'РЕМОНТ','',15,3,2,1,''),(26,'ЧТО ДЕЛАТЬ?','',16,1,2,1,''),(27,'ЗАЯВКА НА ЗАМЕР','',16,2,2,1,''),(28,'Люстры потолочные','',0,1,3,1,NULL),(29,'Люстры подвесные','',0,2,3,1,NULL),(30,'Бра','',0,3,3,1,NULL),(31,'Детские светильники','',0,4,3,1,NULL),(32,'Светильники для кухни','',0,5,3,1,NULL),(33,'Настенно-потолочные светильники','',0,6,3,1,NULL),(34,'Встраиваемый светильник','',0,7,3,1,NULL),(35,'Светильники для ванной','',0,8,3,1,NULL),(36,'Подсветка для картин и зеркал','',0,9,3,1,NULL),(37,'Подвесные светильники','',0,10,3,1,NULL),(38,'Торшеры','',0,11,3,1,NULL),(39,'Настольные лампы','',0,12,3,1,NULL),(40,'Хрустальные люстры','',0,13,3,1,NULL),(41,'Светильники уличные','',0,14,3,1,NULL),(42,'Споты и трек-системы','',0,15,3,1,NULL);
 /*!40000 ALTER TABLE `menus_items` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -381,7 +383,7 @@ CREATE TABLE `shop_tree_node_details` (
   `value` text,
   PRIMARY KEY (`id`),
   KEY `tv` (`typeId`,`value`(950))
-) ENGINE=MyISAM DEFAULT CHARSET=cp1251;
+) ENGINE=MyISAM AUTO_INCREMENT=209 DEFAULT CHARSET=cp1251;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -390,6 +392,7 @@ CREATE TABLE `shop_tree_node_details` (
 
 LOCK TABLES `shop_tree_node_details` WRITE;
 /*!40000 ALTER TABLE `shop_tree_node_details` DISABLE KEYS */;
+INSERT INTO `shop_tree_node_details` VALUES (128,1,'lamps_exists','c','1'),(127,1,'color_glass','dm','16'),(126,1,'color_glass','dm','15'),(125,1,'color','dm','13'),(124,1,'color','dm','12'),(123,1,'material','dm','9'),(122,1,'material','dm','8'),(121,1,'placing','do','4'),(120,1,'style','do','3'),(119,1,'area','d','10'),(89,1,'image','i','f4f6675429ad86c90.jpg'),(118,1,'lamp_count','d','5'),(117,1,'power','d','30'),(116,1,'lamp_type','e','E27'),(115,1,'length','d','2000'),(114,1,'width','d','1200'),(113,1,'height','d','500'),(112,1,'type','do','18'),(111,1,'country','do','2'),(110,1,'maker','do','1'),(129,1,'price','d','3500'),(130,3,'image','i','7ea389c95339e38c0.jpg'),(199,3,'color_glass','dm','17'),(198,3,'color','dm','14'),(197,3,'color','dm','13'),(195,3,'material','dm','9'),(196,3,'color','dm','12'),(194,3,'material','dm','8'),(193,3,'placing','do','7'),(191,3,'collection','s','винтаж'),(192,3,'style','do','3'),(190,3,'area','d','12'),(189,3,'lamp_count','d','5'),(188,3,'power','d','40'),(187,3,'lamp_type','e','E14'),(186,3,'diametr','d','300'),(185,3,'type','do','19'),(184,3,'country','do','2'),(183,3,'maker','do','1'),(200,3,'price','d','2900'),(201,3,'lamps_exists','c','0'),(202,2,'image','i','e8d27f9f88c23e9d0.jpg'),(203,2,'maker','do','1'),(204,2,'lamp_type','e','G4'),(205,2,'power','d','30'),(206,2,'lamp_count','d','3'),(207,2,'collection','s','винтаж'),(208,2,'lamps_exists','c','0');
 /*!40000 ALTER TABLE `shop_tree_node_details` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -414,7 +417,7 @@ CREATE TABLE `shop_tree_nodes` (
   `cnt_view` int(11) NOT NULL DEFAULT '0',
   `cnt_order` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=cp1251;
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=cp1251;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -423,6 +426,7 @@ CREATE TABLE `shop_tree_nodes` (
 
 LOCK TABLES `shop_tree_nodes` WRITE;
 /*!40000 ALTER TABLE `shop_tree_nodes` DISABLE KEYS */;
+INSERT INTO `shop_tree_nodes` VALUES (1,3,1,28,'2006/4C','Люстра потолочная','',0,'2014-04-13',1,0,0),(2,3,1,28,'LYSTR2','Люстра потолочная 2','',0,'2014-04-13',1,0,0),(3,3,1,28,'2006/4E','Люстра потолочная 3','',0,'2014-04-19',0,0,0);
 /*!40000 ALTER TABLE `shop_tree_nodes` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -475,7 +479,7 @@ CREATE TABLE `texts` (
   `content` longtext,
   `visible` int(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=cp1251;
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=cp1251;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -484,7 +488,7 @@ CREATE TABLE `texts` (
 
 LOCK TABLES `texts` WRITE;
 /*!40000 ALTER TABLE `texts` DISABLE KEYS */;
-INSERT INTO `texts` VALUES (1,'OKMPN0',1,'2014-03-23','О компании','','','<p>\n	Мы очень хорошая компания. Смотрите сами!</p>\n',1),(2,'KNTKT0',5,'2014-03-27','Контакты','','','<p>\n	185000 г.Петрозаводск, пр. Ленина, д.1</p>\n<p>\n	тел.: 233-232-322</p>\n<p>\n	факс: 000-87-78и</p>\n<p>\n	{@@link(text, OKMPN0, &quot;О компании&quot;, &quot;прочитайте о нас&quot;)}</p>\n<p>\n	&nbsp;</p>\n',1);
+INSERT INTO `texts` VALUES (1,'OKMPN0',1,'2014-03-23','О компании','','','<p>\n	Мы очень хорошая компания. Смотрите сами!</p>\n',1),(2,'KNTKT0',5,'2014-03-27','Контакты','','','<p>\n	185000 г.Петрозаводск, пр. Ленина, д.1</p>\n<p>\n	тел.: 233-232-322</p>\n<p>\n	факс: 000-87-78и</p>\n<p>\n	{@@link(text, OKMPN0, &quot;О компании&quot;, &quot;прочитайте о нас&quot;)}</p>\n<p>\n	&nbsp;</p>\n',1),(3,'KTFYRX0',17,'2014-04-13','Готовые решения для Вашего интерьера','','','<h1>\n	Готовые решения для Вашего интерьера</h1>\n<p>\n	Воспользуйтесь готовыми решениями и сориентируйтесь в ценах на установку натяжных потолков.</p>\n<p>\n	Мы предлагаем оптимальный набор материалов, комплектующих и работы по установке натяжного потолка.</p>\n<p>\n	Цены на готовые решения действуют при общей площади заказа от 30 м2.</p>\n<p>\n	&nbsp;</p>\n',1);
 /*!40000 ALTER TABLE `texts` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -497,4 +501,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-04-12 21:37:51
+-- Dump completed on 2014-04-21 21:27:02

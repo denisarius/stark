@@ -47,6 +47,11 @@ class GadgetLightsBase
 		return "<ul>$typesLayout</ul>";
 	}
 
+	public function getFilterLayout()
+	{
+		return $this->_views['filter'];
+	}
+
 	/**
 	 * Формирует сверстанный блок характерирсик товара.
 	 *
@@ -72,7 +77,7 @@ class GadgetLightsBase
 	protected function _getDetails($itemId, $params, $readyParams, $template, $splitter = '')
 	{
 		$detailParams = array();
-		foreach(array_keys($params) as $paramName)
+		foreach (array_keys($params) as $paramName)
 		{
 			if (isset($params[$paramName]['get_opt']))
 			{
@@ -102,7 +107,13 @@ class GadgetLightsBase
 		}
 
 		// тут readyParams имеет формат
-		usort($readyParams, function($a, $b) { return $a[1] - $b[1];});
+		usort(
+			$readyParams,
+			function ($a, $b)
+			{
+				return $a[1] - $b[1];
+			}
+		);
 		$ret = array();
 		foreach ($readyParams as $info)
 		{
@@ -136,7 +147,7 @@ class GadgetLightsBase
 		$paramValues = array();
 		foreach ($params as $name => $value)
 		{
-			$paramNames[] = "::$name::";
+			$paramNames[] = "@$name@";
 			$paramValues[] = $value;
 		}
 
@@ -149,10 +160,10 @@ class GadgetLightsBase
 		return "/lights/$lightType/$lightCategory/$menuId/$page.html";
 	}
 
-	public static function getDetailsUrl($lightType, $itemId)
+	public static function getDetailsUrl($linkedMenuId, $itemId)
 	{
 		$menuId = get_menu_item_id();
-		return "/light-details/$lightType/$menuId/$itemId.html";
+		return "/light-details/$linkedMenuId/$menuId/$itemId.html";
 	}
 
 	public static function parseUrl()
@@ -167,6 +178,31 @@ class GadgetLightsBase
 	protected $_urlData;
 	// текущий (активный в меню) тип
 	private $_typeId;
+
+	private $_views = array(
+		'filter' => <<<FILTER
+<div class="left_menu_filter">
+		<span>Фильтр</span>
+		<br>
+		<div class="left_menu_filter_form">
+			<label>Тип товара</label>
+			<input type="text">
+			<label>Производитель</label>
+			<input type="text">
+			<label>Тип ламп</label>
+			<input type="text">
+			<label>Цена</label>
+			<input type="text" class="left_menu_input" placeholder="От">
+			<input type="text" class="left_menu_input last" placeholder="До">
+			<br>
+			<div class="left_menu_checkbox_wrap"><input type="checkbox">Товар по скидке</div>
+			<div class="left_menu_checkbox_wrap"><input type="checkbox">Товар в наличии</div>
+			<div class="left_menu_filter_form_button">Подобрать</div>
+		</div>
+	</div>
+FILTER
+
+	);
 }
 
 class GadgetLightDetails extends GadgetLightsBase
@@ -176,12 +212,13 @@ class GadgetLightDetails extends GadgetLightsBase
 	{
 		parent::__construct();
 		$this->_id = (int)$this->_urlData['id'];
+		global $_cms_tree_node_table;
+		$this->_itemProps = get_data_array('*', $_cms_tree_node_table, "id={$this->_id}");
 	}
 
 	public function getItemLayout()
 	{
-		global $_cms_goods_images_url, $_cms_tree_node_table;
-		$item = get_data_array('*', $_cms_tree_node_table, "id={$this->_id}");
+		global $_cms_goods_images_url;
 		$layoutParams = shop_get_goods_details($this->_id, array('image', 'maker', 'price'));
 		$layoutParams['image'] = "$_cms_goods_images_url/{$layoutParams['image']}";
 
@@ -208,68 +245,81 @@ class GadgetLightDetails extends GadgetLightsBase
 				'width' => ''
 			),
 			array(
-				array('Артикул', 0, $item['code']),
-				array('Производитель',5, $layoutParams['maker']),
+				array('Артикул', 0, $this->_itemProps['code']),
+				array('Производитель', 5, $layoutParams['maker']),
 				'size' => array('Размеры ВхДхШ', 15, 'units' => 'мм'),
 			),
 			'<li><span class="left">@label@</span><span class="right">@value@</span></li>'
 		);
 
-		$layoutParams['name'] = $item['name'];
+		$layoutParams['name'] = $this->_itemProps['name'];
 
 		return $this->renderTemplate($layoutParams, $this->_views['item']);
+	}
+
+	public function getLayoutSimilar()
+	{
+		global $_cms_goods_images_url, $_cms_tree_node_table, $_cms_tree_node_details;
+
+		$itemDetails = shop_get_goods_details($this->_id, array('collection', 'maker' => array('indexes' => true)));
+		$similarItems = get_data_array_rs('id, name, parent',  "$_cms_tree_node_table n" ,
+		"EXISTS(SELECT 1 FROM $_cms_tree_node_details nd WHERE nd.node=n.id AND typeId='collection' AND value='{$itemDetails['collection']}')".
+		" AND EXISTS(SELECT 1 FROM $_cms_tree_node_details nd WHERE nd.node=n.id AND typeId='maker' AND value='{$itemDetails['maker']}')".
+		" AND n.type='{$this->_itemProps['type']}'");
+
+		$layout = '';
+		while ($item = $similarItems->next())
+		{
+			$layoutParams = shop_get_goods_details($item['id'], array('image', 'maker', 'price'));
+			$layoutParams['image'] = "$_cms_goods_images_url/thumbs/{$layoutParams['image']}";
+			$layoutParams['name'] = $item['name'];
+			$layoutParams['link'] = $this->getDetailsUrl($item['parent'], $item['id']);
+			$layout .= $this->renderTemplate($layoutParams, $this->_views['similar']);
+		}
+
+		return $layout;
 	}
 
 	private $_views = array(
 		'item' => <<<ITEM
 	<div class="product_info_container">
-		<img src="::image::" alt="">
+		<img src="@image@" alt="">
 		<div class="product_info_about">
-			<h2>::name::</h2>
-			<span>Производитель: ::maker::</span>
+			<h2>@name@</h2>
+			<span>Производитель: @maker@</span>
 			<ul>
-				::details::
+				@details@
 			</ul>
 			<br>
 			<div class="product_info_order">
 								<span>Под заказ<br>
-								Цена:<span> ::price:: &#8381;</span></span>
+								Цена:<span> @price@ &#8381;</span></span>
 			</div>
 			<div clsas=""></div>
 			<div class="product_info_about_tosearch">К результатам поиска</div>
 		</div>
 	</div>
 ITEM
+		,
+		'similar' => <<<ITEM
+			<a href="@link@" class="product_same_container_item">
+				<h2>@name@</h2>
+				<span class="product_same_container_dev">@maker@</span>
+				<img src="@image@" alt="">
+				<span class="product_same_container_ptice">@price@ &#8381;</span>
+			</a>
+ITEM
 
 	);
 
-//<li><span class="left">Артикул</span><span class="right">::code::</span></li>
-//<li><span class="left">Производитель</span><span class="right">::maker::</span></li>
-//<li><span class="left">Страна</span><span class="right">::country::</span></li>
-//<li><span class="left">Размеры ВхДхШ </span><span class="right">::size::</span></li>
-//<li><span class="left">Тип лампочки (основной)</span><span class="right">::lamp_type::</span></li>
-//<li><span class="left">Мощность лампы</span><span class="right">::power::</span></li>
-//<li><span class="left">Количество ламп</span><span class="right">::lamp_count::</span></li>
-//<li><span class="left">Площадь освещения </span><span class="right">::area:: м2</span></li>
-//<li><span class="left">Коллекция</span><span class="right">::collection::</span></li>
-//<li><span class="left">Тип светильника</span><span class="right"> Люстры</span></li>
-//<li><span class="left">Стиль светильника</span><span class="right">::style::</span></li>
-//<li><span class="left">Способ размещения </span><span class="right">::placing::</span></li>
-//<li><span class="left">Материал</span><span class="right">::material::</span></li>
-//<li><span class="left">Цвет</span><span class="right">::color::</span></li>
-//<li><span class="left">Лампочки в комплекте</span><span class="right">::lamp_exists::</span></li>
-
-	// id товара
+	/** id товара */
 	private $_id;
+	/** все свойства товара из записи БД */
+	private $_itemProps;
 }
 
 class GadgetLightsList extends GadgetLightsBase
 {
-//	public function __construct()
-//	{
-//		parent::__construct();
-//	}
-
 	public function getItemsLayout()
 	{
 		global $_cms_goods_images_url, $_cms_tree_node_table;
@@ -288,7 +338,7 @@ class GadgetLightsList extends GadgetLightsBase
 					array(
 						'diametr' => array('Диаметр', 1),
 						'lamp_type' => array('Тип ламп', 2),
-						'country' => array('Производство',3),
+						'country' => array('Производство', 3),
 						'length' => '',
 						'width' => '',
 						'height' => ''
@@ -310,22 +360,16 @@ class GadgetLightsList extends GadgetLightsBase
 	private $_views = array(
 		'item' => <<<ITEM
 <div class="right_column_node">
-	<a href="::link_details::">
-	<img src="::image::">
-	<h2>::name::</h2>
+	<a href="@link_details@">
+	<img src="@image@">
+	<h2>@name@</h2>
 	</a>
-	<p>Производитель: ::maker::</p>
-	<span>::details::</span>
-	<div class="right_column_node_price">Цена: <span>::price:: &#8381;</span></div>
-	<div class="right_column_node_button">Подобрать</div>
+	<p>Производитель: @maker@</p>
+	<span>@details@</span>
+	<div class="right_column_node_price">Цена: <span>@price@ &#8381;</span></div>
+	<a href="@link_details@" class="right_column_node_button">Подробнее</a>
 </div>
 ITEM
 	);
-
-}
-
-class UrlLights
-{
-
 
 }
