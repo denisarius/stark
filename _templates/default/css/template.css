@@ -3,6 +3,11 @@
     src: url('@!template@/fonts/Trebuchet_MS.ttf');
 }
 
+@font-face {
+    font-family: 'TrebuchetMS_Bold';
+    src: url('@!template@/fonts/TrebuchetMS_Bold.ttf');
+}
+
 article, aside, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section {
   display: block;
@@ -26,8 +31,7 @@ br {
 }
 
 body {
-    /* fix for linux users */
-	font: 14px "Trebuchet MS", "Arial";
+	font: 14px "Trebuchet MS";
 	color: #1a1a1a;
 }
 
@@ -648,7 +652,7 @@ ul {
 	display: block;
 }
 
-.left_menu_filter_form input[type="text"]{
+.left_menu_filter_form .left_menu_input {
 	width: 183px;
 	padding-left: 10px;
 	margin-bottom: 10px;
@@ -861,8 +865,7 @@ ul {
 }
 
 .managers_node_name{
-    /* TODO dirty fix for linux developers */
-    font-weight: bold; /* font-family: "TrebuchetMS_Bold"; */
+	font-family: "TrebuchetMS_Bold";
 	font-size: 18px;
 	font-style: italic;
 	margin-bottom: 2px;

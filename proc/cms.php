@@ -7,19 +7,35 @@ function cms_get_dir_value($id)
 }
 
 //------------------------------------------------------------------------------
-function cms_get_object_description($type)
+function cms_get_object_description($type, $object_types = null)
 {
 	global $_cms_objects_types;
 
-	foreach ($_cms_objects_types as $desc)
+	$object_types = $object_types ? $object_types : $_cms_objects_types;
+	if (is_string($object_types))
+	{
+		global $$object_types;
+		$object_types = $$object_types;
+	}
+
+	foreach ($object_types as $desc)
 		if (strtolower($desc['id']) == strtolower($type)) return $desc;
 	return false;
 }
 
 //------------------------------------------------------------------------------
-function cms_get_object_detail($type, $id)
+function cms_get_object_detail($type, $id, $object_types = null)
 {
-	$object_description = cms_get_object_description($type);
+	global $_cms_objects_types;
+
+	$object_types = $object_types ? $object_types : $_cms_objects_types;
+	if (is_string($object_types))
+	{
+		global $$object_types;
+		$object_types = $$object_types;
+	}
+
+	$object_description = cms_get_object_description($type, $object_types);
 	if ($object_description === false) return false;
 	$prop = '';
 	foreach ($object_description['details'] as $d)
@@ -172,7 +188,7 @@ function cms_get_dir_select($dir_id, $id, $class, $first_empty, $init = -1)
 {
 	global $_cms_directories_data;
 
-	$html = "<select id='$id'";
+	$html = "<select id='$id' name='$id'";
 	if ($class != '') $html .= " class='$class'";
 	$html .= '>';
 	if ($first_empty) $html .= "<option value='-1'></option>";
@@ -224,15 +240,22 @@ stop;
 // class		- CSS класс для элемента SELECT
 // first_empty	- добавление первого пустого элемента в селект
 // init			- ID выбранной строчки
-function cms_get_object_enum_select($obj_type, $obj_prop, $id, $class, $first_empty, $init = '')
+function cms_get_object_enum_select($obj_type, $obj_prop, $id, $class, $first_empty, $init = '', $object_types = null)
 {
 	global $html_charset, $_cms_objects_types;
 
-	$html = "<select id='$id'";
+	$object_types = $object_types ? $object_types : $_cms_objects_types;
+	if (is_string($object_types))
+	{
+		global $$object_types;
+		$object_types = $$object_types;
+	}
+
+	$html = "<select id='$id' name='$id'";
 	if ($class != '') $html .= " class='$class'";
 	$html .= '>';
 	if ($first_empty) $html .= "<option value='-1'></option>";
-	$prop = cms_get_object_detail($obj_type, $obj_prop);
+	$prop = cms_get_object_detail($obj_type, $obj_prop, $object_types);
 	$val = explode('|', $prop['options']);
 	foreach ($val as $v)
 	{
@@ -244,6 +267,41 @@ function cms_get_object_enum_select($obj_type, $obj_prop, $id, $class, $first_em
 	$html .= '</select>';
 	return $html;
 }
+
+//------------------------------------------------------------------------------
+// Генерация HTML кода для элемента SELECT на основе конфигурации типов объектов.
+// Значениями элементов выбора являются ид типов, а текстом элементов - название (значение name) типа.
+// id			- ID HTML элемента (<select name="<id>" id="<id>">)
+// class		- CSS класс для элемента SELECT
+// first_empty	- добавление первого пустого элемента в селект
+// init			- ID выбранной строчки
+//
+function cms_get_object_type_select($id, $class, $first_empty, $init = '', $object_types = null)
+{
+	global $html_charset, $_cms_objects_types;
+
+	$object_types = $object_types ? $object_types : $_cms_objects_types;
+	if (is_string($object_types))
+	{
+		global $$object_types;
+		$object_types = $$object_types;
+	}
+
+	$html = "<select id='$id' name='$id'";
+	if ($class != '') $html .= " class='$class'";
+	$html .= '>';
+	if ($first_empty) $html .= "<option value='-1'></option>";
+	foreach ($object_types as $type)
+	{
+		$sl = '';
+		if ($type['id'] == $init) $sl = " selected='selected'";
+		$name = htmlspecialchars($type['name'], ENT_QUOTES, $html_charset);
+		$html .= "<option value='{$type['id']}'$sl>$name</option>";
+	}
+	$html .= '</select>';
+	return $html;
+}
+
 
 //------------------------------------------------------------------------------
 function cms_shop_delete_good($id)

@@ -26,6 +26,9 @@ echo <<<stop
 <@gadget_submenu>
 	<div class="content_container_center">
 stop;
+require "$pmTemplatesPath/include/gadget_lights_classes.php";
+global $searchFilter;
+$searchFilter = new SearchFilter();
 switch ($pagePath[0])
 {
 	case 'order':
@@ -35,15 +38,13 @@ switch ($pagePath[0])
 		echo '<@gadget_content_header><@gadget_content_menu><@gadget_ceil_solutions><@gadget_managers>';
 		break;
 	case 'lights':
-		require "$pmTemplatesPath/include/gadget_lights_classes.php";
 		echo '<@gadget_lights>';
 		break;
 	case 'light-details':
-		require "$pmTemplatesPath/include/gadget_lights_classes.php";
 		echo '<@gadget_lights_details>';
 		break;
-	case 'lights_search':
-		echo '<@gadget_lights>';
+	case 'search':
+		echo '<@gadget_search>';
 		break;
 
 	// типовой макет

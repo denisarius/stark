@@ -1,10 +1,25 @@
 <?php
 
+class View
+{
+	protected function renderTemplate($params, $template)
+	{
+		$paramNames = array();
+		$paramValues = array();
+		foreach ($params as $name => $value)
+		{
+			$paramNames[] = "@$name@";
+			$paramValues[] = $value;
+		}
+
+		return str_replace($paramNames, $paramValues, $template);
+	}
+}
 
 /**
  * Отвечает за базовые функции отображения каталога: вывод меню, доступ к информации из урла
  */
-class GadgetLightsBase
+class GadgetLightsBase extends View
 {
 	public function __construct()
 	{
@@ -47,10 +62,6 @@ class GadgetLightsBase
 		return "<ul>$typesLayout</ul>";
 	}
 
-	public function getFilterLayout()
-	{
-		return $this->_views['filter'];
-	}
 
 	/**
 	 * Формирует сверстанный блок характерирсик товара.
@@ -141,18 +152,6 @@ class GadgetLightsBase
 		return implode($splitter, $ret);
 	}
 
-	protected function renderTemplate($params, $template)
-	{
-		$paramNames = array();
-		$paramValues = array();
-		foreach ($params as $name => $value)
-		{
-			$paramNames[] = "@$name@";
-			$paramValues[] = $value;
-		}
-
-		return str_replace($paramNames, $paramValues, $template);
-	}
 
 	private function getSectionUrl($lightType, $lightCategory = 0, $page = 0)
 	{
@@ -179,30 +178,6 @@ class GadgetLightsBase
 	// текущий (активный в меню) тип
 	private $_typeId;
 
-	private $_views = array(
-		'filter' => <<<FILTER
-<div class="left_menu_filter">
-		<span>Фильтр</span>
-		<br>
-		<div class="left_menu_filter_form">
-			<label>Тип товара</label>
-			<input type="text">
-			<label>Производитель</label>
-			<input type="text">
-			<label>Тип ламп</label>
-			<input type="text">
-			<label>Цена</label>
-			<input type="text" class="left_menu_input" placeholder="От">
-			<input type="text" class="left_menu_input last" placeholder="До">
-			<br>
-			<div class="left_menu_checkbox_wrap"><input type="checkbox">Товар по скидке</div>
-			<div class="left_menu_checkbox_wrap"><input type="checkbox">Товар в наличии</div>
-			<div class="left_menu_filter_form_button">Подобрать</div>
-		</div>
-	</div>
-FILTER
-
-	);
 }
 
 class GadgetLightDetails extends GadgetLightsBase
@@ -262,10 +237,13 @@ class GadgetLightDetails extends GadgetLightsBase
 		global $_cms_goods_images_url, $_cms_tree_node_table, $_cms_tree_node_details;
 
 		$itemDetails = shop_get_goods_details($this->_id, array('collection', 'maker' => array('indexes' => true)));
-		$similarItems = get_data_array_rs('id, name, parent',  "$_cms_tree_node_table n" ,
-		"EXISTS(SELECT 1 FROM $_cms_tree_node_details nd WHERE nd.node=n.id AND typeId='collection' AND value='{$itemDetails['collection']}')".
-		" AND EXISTS(SELECT 1 FROM $_cms_tree_node_details nd WHERE nd.node=n.id AND typeId='maker' AND value='{$itemDetails['maker']}')".
-		" AND n.type='{$this->_itemProps['type']}'");
+		$similarItems = get_data_array_rs(
+			'id, name, parent',
+			"$_cms_tree_node_table n",
+			"EXISTS(SELECT 1 FROM $_cms_tree_node_details nd WHERE nd.node=n.id AND typeId='collection' AND value='{$itemDetails['collection']}')".
+			" AND EXISTS(SELECT 1 FROM $_cms_tree_node_details nd WHERE nd.node=n.id AND typeId='maker' AND value='{$itemDetails['maker']}')".
+			" AND n.type='{$this->_itemProps['type']}'"
+		);
 
 		$layout = '';
 		while ($item = $similarItems->next())
@@ -293,7 +271,7 @@ class GadgetLightDetails extends GadgetLightsBase
 			<br>
 			<div class="product_info_order">
 								<span>Под заказ<br>
-								Цена:<span> @price@ &#8381;</span></span>
+								Цена:<span> @price@ руб.</span></span>
 			</div>
 			<div clsas=""></div>
 			<div class="product_info_about_tosearch">К результатам поиска</div>
@@ -306,7 +284,7 @@ ITEM
 				<h2>@name@</h2>
 				<span class="product_same_container_dev">@maker@</span>
 				<img src="@image@" alt="">
-				<span class="product_same_container_ptice">@price@ &#8381;</span>
+				<span class="product_same_container_ptice">@price@ руб.</span>
 			</a>
 ITEM
 
@@ -366,10 +344,497 @@ class GadgetLightsList extends GadgetLightsBase
 	</a>
 	<p>Производитель: @maker@</p>
 	<span>@details@</span>
-	<div class="right_column_node_price">Цена: <span>@price@ &#8381;</span></div>
+	<div class="right_column_node_price">Цена: <span>@price@ руб.</span></div>
 	<a href="@link_details@" class="right_column_node_button">Подробнее</a>
 </div>
 ITEM
 	);
 
+}
+
+class GadgetSearchResults extends GadgetLightsBase
+{
+	public function __construct( /*SearchFilter $filter*/)
+	{
+		parent::__construct();
+	}
+
+	public function getResultsLayout()
+	{
+		global $_cms_goods_images_url, $_cms_tree_node_table;
+
+		return 'тут будут результаты';
+		// TODO дальше сделать выборку поиска
+
+		$items = get_data_array_rs('*', $_cms_tree_node_table, "parent={$this->getCurrentTypeId()}");
+		$itemsLayout = '';
+		while ($item = $items->next())
+		{
+			$layoutParams = shop_get_goods_details($item['id'], array('image', 'maker', 'price'));
+			$layoutParams['image'] = "$_cms_goods_images_url/thumbs/{$layoutParams['image']}";
+
+//			$detailNames = array('country', 'length', 'width', 'height', 'diametr', 'lamp_type');
+			$layoutParams['details'] =
+				$this->_getDetails(
+					$item['id'],
+					array(
+						'diametr' => array('Диаметр', 1),
+						'lamp_type' => array('Тип ламп', 2),
+						'country' => array('Производство', 3),
+						'length' => '',
+						'width' => '',
+						'height' => ''
+					),
+					array('size' => array('Размеры', 0)),
+					'@label@: @value@',
+					'<br/>'
+				);
+
+			$layoutParams['name'] = $item['name'];
+			$layoutParams['link_details'] = $this->getDetailsUrl($this->getCurrentTypeId(), $item['id']);
+
+			$itemsLayout .= $this->renderTemplate($layoutParams, $this->_views['item']);
+		}
+		return $itemsLayout;
+	}
+
+
+	private $_views = array(
+		'item' => <<<ITEM
+<div class="right_column_node">
+	<a href="@link_details@">
+	<img src="@image@">
+	<h2>@name@</h2>
+	</a>
+	<p>Производитель: @maker@</p>
+	<span>@details@</span>
+	<div class="right_column_node_price">Цена: <span>@price@ руб.</span></div>
+	<a href="@link_details@" class="right_column_node_button">Подробнее</a>
+</div>
+ITEM
+	);
+
+
+}
+
+/**
+ * Управляет формой поиска: отображение, запоминание установленных параметров.
+ * Логика установки значений параметров:
+ * 1. В начале шаблона создать объект, при этом содержимое полей устанавливается
+ *    в пустое значение (см. SearchFilterOption::emptyValue)
+ * 2. В гаджетах, наследующих параметры поиска из сессии, вызвать restoreContext - поля получат значения из сессии.
+ * 3. В гаджете, запускающем поиск, вызывать (дополнительно) setContext - если переход был из формы, то значения
+ *    из формы буду присвоены полям и записаны в сессию, иначе вызов не будет иметь эффекта.
+ * 4. По окончании работы скрипта деструтор, если не вызывался restoreContext или setContext, уничтожит сессионные
+ *    значения полей.
+ */
+class SearchFilter extends View
+{
+
+	const FILTER_FIELD_TYPE = 'filter_type';
+	const FILTER_FIELD_LAMP = 'filter_lamp';
+	const FILTER_FIELD_MAKER = 'filter_maker';
+	const FILTER_FIELD_PRICE_FROM = 'price_from';
+	const FILTER_FIELD_PRICE_TO = 'price_to';
+	const FILTER_FIELD_HAS_DISCOUNT = 'has_discount';
+	const FILTER_FIELD_EXISTS = 'exists';
+
+	public function __construct()
+	{
+		// конструируем объекты параметров формы по конфигу
+		foreach ($this->_formFields as $name => &$fieldConfig)
+		{
+			$fieldConfig['name'] = $name;
+			$fieldConfig = SearchFilterOptionFactory::create(
+				$fieldConfig
+			);
+		}
+	}
+
+	public function getFilterLayout()
+	{
+		$templateParams = array();
+		/** @var $field SearchFilterOption */
+		foreach ($this->_formFields as $name => $field)
+		{
+			$templateParams[$name] = $field->getHtml();
+		}
+
+		return $this->renderTemplate(
+			$templateParams,
+			$this->_views['filter']
+		);
+	}
+
+	public function isEmpty()
+	{
+		foreach ($this->_formFields as $field)
+		{
+			if (!$field->isEmpty())
+				return false;
+		}
+		return true;
+	}
+
+	public function setContext()
+	{
+		$this->_keepContext = true;
+		$search_start = pmImportVarsList('search_start');
+
+		if (!$search_start)
+			return;
+
+		$opts = pmImportVarsList(
+			implode(
+				'|',
+				array_keys($this->_formFields)
+			),
+			true
+		);
+
+		/** @var $field SearchFilterOption */
+		foreach ($this->_formFields as $name => $field)
+		{
+			$_SESSION[$name] = $opts[$name];
+			$field->setValue($opts[$name]);
+		}
+	}
+
+	public function restoreContext()
+	{
+		$this->_keepContext = true;
+
+		/** @var $field SearchFilterOption */
+		foreach ($this->_formFields as $name => $field)
+		{
+			$field->setValue(isset($_SESSION[$name]) ? $_SESSION[$name] : null);
+		}
+	}
+
+	public function _destroyContext()
+	{
+		/** @var $field SearchFilterOption */
+		foreach ($this->_formFields as $name => $field)
+		{
+			$field->reset();
+			unset($_SESSION[$name]);
+		}
+	}
+
+	public function __destruct()
+	{
+		if (!$this->_keepContext)
+			$this->_destroyContext();
+	}
+
+	// TODO урл формы генерировать!
+	private $_views = array(
+		'filter' => <<<FILTER
+<div class="left_menu_filter">
+		<span>Фильтр</span>
+		<br>
+		<div class="left_menu_filter_form">
+		<form id="search_form" action="/search/0.html" method="POST" target="_self">
+			<label>Тип товара</label>
+			@filter_type@
+			<!--<select name='filter_type'><option  selected value='-1'>-выберите значение-</option><option >Люстры потолочные</option><option>Люстры подвесные</option></select>-->
+			<label>Производитель</label>
+			@filter_maker@
+			<!--<select><option  selected value='empty'>-выберите значение-</option><option >ODEON LIGHT</option><option>GENERAL ELECTRIC</option></select>-->
+			<label>Тип ламп</label>
+			@filter_lamp@
+			<label>Цена</label>
+			@price_from@<!--<input type="text" class="left_menu_input" placeholder="От" value="">-->
+			@price_to@<!--<input type="text" class="left_menu_input last" placeholder="До" value="">-->
+			<br>
+			<div class="left_menu_checkbox_wrap">@has_discount@<!--<input type="checkbox">-->Товар по скидке</div>
+			<div class="left_menu_checkbox_wrap">@exists@<!--<input type="checkbox">-->Товар в наличии</div>
+			<div class="left_menu_filter_form_button" onclick="$('#search_form')[0].submit()">Подобрать</div>
+			<input type="hidden" name="search_start" value="1"/>
+		</form>
+		</div>
+	</div>
+FILTER
+
+	);
+
+	private $_keepContext = false;
+
+	private $_formFields = array(
+		self::FILTER_FIELD_PRICE_FROM => array(
+			'type' => SearchFilterOption::OPTION_TYPE_TEXT,
+			'options' => array(
+				'attributes' => array('class' => 'left_menu_input', 'placeholder' => 'От')
+			)
+		),
+		self::FILTER_FIELD_PRICE_TO => array(
+			'type' => SearchFilterOption::OPTION_TYPE_TEXT,
+			'options' => array(
+				'attributes' => array('class' => 'left_menu_input last', 'placeholder' => 'До')
+			)
+		),
+		self::FILTER_FIELD_HAS_DISCOUNT => array(
+			'type' => SearchFilterOption::OPTION_TYPE_CHECK,
+			'options' => array()
+		),
+		self::FILTER_FIELD_EXISTS => array(
+			'type' => SearchFilterOption::OPTION_TYPE_CHECK,
+			'options' => array()
+		),
+		self::FILTER_FIELD_TYPE => array(
+			'type' => SearchFilterOption::OPTION_TYPE_COMBO,
+			'options' => array(
+				'source' => SearchFilterOptionCombo::OPTION_DATA_SOURCE_OBJECT_TYPE,
+				// cms_get_object_type_select($id, $class, $first_empty, $init = '', $object_types = null)
+				'helper_params' => array(
+					'id' => self::FILTER_FIELD_TYPE,
+					'class' => 'left_menu_input',
+					'first_empty' => true,
+					'objects_var_name' => '_cms_good_types'
+				)
+			)
+		),
+		self::FILTER_FIELD_LAMP => array(
+			'type' => SearchFilterOption::OPTION_TYPE_COMBO,
+			'options' => array(
+				'source' => SearchFilterOptionCombo::OPTION_DATA_SOURCE_OBJECT_ENUM,
+				// $obj_type, $obj_prop, $id, $class, $first_empty, $init = ''
+				'helper_params' => array(
+					// справочники ламп для всех одинаковые, берем для первого типа светильника
+					'obj_type' => 1,
+					'obj_prop' => 'lamp_type',
+					'id' => self::FILTER_FIELD_LAMP,
+					'class' => 'left_menu_input',
+					'first_empty' => true,
+					'objects_var_name' => '_cms_good_types'
+				)
+			)
+		),
+		self::FILTER_FIELD_MAKER => array(
+			'type' => SearchFilterOption::OPTION_TYPE_COMBO,
+			'options' => array(
+				'source' => SearchFilterOptionCombo::OPTION_DATA_SOURCE_DIRECTORY,
+				// $id, $class, $first_empty, $init = ''
+				'helper_params' => array(
+					'dir_id' => 1,
+					'id' => self::FILTER_FIELD_MAKER,
+					'class' => 'left_menu_input',
+					'first_empty' => true,
+				)
+			)
+		),
+	);
+}
+
+abstract class SearchFilterOption
+{
+	const OPTION_TYPE_CHECK = 0;
+	const OPTION_TYPE_COMBO = 1;
+	const OPTION_TYPE_TEXT = 2;
+
+	/**
+	 * @param $name имя элемента в форме
+	 * @param array $options дополнительные параметры, зависящие от конкретного класса
+	 * @param null $defaultValue значение по умолчанию при выводе формы
+	 */
+	public function __construct($name, Array $options, $defaultValue = null)
+	{
+		$this->_fieldName = $name;
+		$this->_defaultValue = is_null($defaultValue) ? $this->emptyValue() : $defaultValue;
+		$this->reset();
+		$this->_options = $options;
+	}
+
+	final public function isEmpty()
+	{
+		return $this->_value === $this->emptyValue();
+	}
+
+	final public function setValue($value)
+	{
+		if (!is_null($value))
+			$this->_value = $value;
+		else
+			$this->_value = $this->emptyValue();
+	}
+
+	final public function value()
+	{
+		return $this->_value;
+	}
+
+	abstract public function getHtml();
+
+	/**
+	 * Возвращает неустановленное (пустое) значение для данного типа поля ввода того же типа, который приходит из формы.
+	 * @return string
+	 */
+	abstract public function emptyValue();
+
+	final public function reset()
+	{
+		$this->_value = $this->_defaultValue;
+	}
+
+	final public function fieldName()
+	{
+		return $this->_fieldName;
+	}
+
+	protected $_fieldName;
+	protected $_value;
+
+	/** @var $_defaultValue дефолтное значение для данного экземпляра поля. может отличаться
+	 * от системного (см. метод emptyValue
+	 */
+	protected $_defaultValue;
+	protected $_options;
+}
+
+class SearchFilterOptionText extends SearchFilterOption
+{
+	public function getHtml()
+	{
+		$attr = "type=\"text\" name=\"{$this->_fieldName}\" value=\"{$this->_value}\" ";
+		if (isset($this->_options['attributes']))
+		{
+			foreach ($this->_options['attributes'] as $name => $val)
+				$attr .= " $name = \"$val\"";
+		}
+
+		return "<input $attr />";
+	}
+
+	public function emptyValue()
+	{
+		return '';
+	}
+}
+
+/**
+ * Class SearchFilterOptionCombo
+ * Формат параметра конструтора $options:
+ * array(
+ *   'source' => <источник данных: self::OPTION_DATA_SOURCE_*>,
+ *   'helper_params' => array(имя => значение) параметры для вызова конкретных методов построения html,
+ *     должны соответствовать сигнатуре метода.
+ * )
+ */
+class SearchFilterOptionCombo extends SearchFilterOption
+{
+	const OPTION_DATA_SOURCE_OBJECT_TYPE = 1;
+	const OPTION_DATA_SOURCE_OBJECT_ENUM = 2;
+	const OPTION_DATA_SOURCE_DIRECTORY = 3;
+
+	public function getHtml()
+	{
+		global $_cms_good_types;
+		$helperParams = $this->_options['helper_params'];
+		switch ($this->_options['source'])
+		{
+			case self::OPTION_DATA_SOURCE_OBJECT_TYPE:
+				return cms_get_object_type_select(
+					$this->_fieldName, //$helperParams['id'],
+					$helperParams['class'],
+					$helperParams['first_empty'],
+					$this->value(),
+					$helperParams['objects_var_name']
+				);
+				break;
+			case self::OPTION_DATA_SOURCE_OBJECT_ENUM:
+//				($obj_type, $obj_prop, $id, $class, $first_empty, $init = '')
+				return cms_get_object_enum_select(
+					$helperParams['obj_type'],
+					$helperParams['obj_prop'],
+					$this->_fieldName, //$helperParams['id'],
+					$helperParams['class'],
+					$helperParams['first_empty'],
+					$this->value(),
+					$helperParams['objects_var_name']
+				);
+				break;
+			case self::OPTION_DATA_SOURCE_DIRECTORY:
+//				($dir_id, $id, $class, $first_empty, $init = -1)
+				return cms_get_dir_select(
+					$helperParams['dir_id'],
+					$this->_fieldName, //$helperParams['id'],
+					$helperParams['class'],
+					$helperParams['first_empty'],
+					$this->value()
+				);
+				break;
+			default:
+				return '';
+
+		}
+
+	}
+
+	public function emptyValue()
+	{
+		return '-1';
+	}
+
+	/**
+	 * @var $_options array дополнительные, специфичные для данного типа поля, настройки
+	 */
+//	private $_options;
+}
+
+//class SearchFilterOptionText extends SearchFilterOption
+//{
+//	public function getHtml()
+//	{
+//		return '';
+//	}
+//
+//	public function emptyValue()
+//	{
+//		return '';
+//	}
+//}
+
+class SearchFilterOptionCheck extends SearchFilterOption
+{
+	public function getHtml()
+	{
+		$checked = $this->_value === false ? '' :  'checked';
+		$attr = "type=\"checkbox\" $checked name=\"{$this->_fieldName}\"";
+
+		if (isset($this->_options['attributes']))
+		{
+			foreach ($this->_options['attributes'] as $name => $val)
+				$attr .= " $name = \"$val\"";
+		}
+
+		return "<input $attr />";
+
+	}
+
+	public function emptyValue()
+	{
+		return false;
+	}
+}
+
+class SearchFilterOptionFactory
+{
+	public static function create($config /*$type, $name, $options = null, $defaultValue = null*/)
+	{
+		$defaultValue = isset($config['default']) ? $config['default'] : null;
+		switch ($config['type'])
+		{
+			case SearchFilterOption::OPTION_TYPE_TEXT:
+				return new SearchFilterOptionText($config['name'], $config['options'], $defaultValue);
+				break;
+			case SearchFilterOption::OPTION_TYPE_COMBO:
+				return new SearchFilterOptionCombo($config['name'], $config['options'], $defaultValue);
+				break;
+			case SearchFilterOption::OPTION_TYPE_CHECK:
+				return new SearchFilterOptionCheck($config['name'], $config['options'], $defaultValue);
+				break;
+			default:
+				throw new Exception('invalid filter option field type: '.$config['type']);
+		}
+	}
 }
