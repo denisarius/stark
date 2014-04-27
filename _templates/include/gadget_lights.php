@@ -8,6 +8,7 @@ global $searchFilter;
 </div>
 <div class="right_column_container">
 	<h1><?php echo $gadget->getCurrentTypeName(); ?></h1>
-	<?php echo $gadget->getItemsLayout(); ?>
+	<?php echo $gadget->getHtml(); ?>
+	<?php echo $gadget->getPagerHtml(); ?>
 </div>
 <br>

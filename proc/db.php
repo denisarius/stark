@@ -96,16 +96,19 @@ function get_data_array($field, $tables, $condition='')
 
 /**
  * Аналогична get_data_array, но возвращает набор данных.
+ *
  * @param string $field список полей, передается в sql-запрос
  * @param string $tables список таблиц (может быть join)
  * @param string $condition условие выборки, если не пустое, передается в where
+ * @param string $extra дополнительные параметры запроса (order by, limit), выводятся в конце запроса
+ *
  * @return DbResultSet
  */
-function get_data_array_rs($field, $tables, $condition='')
+function get_data_array_rs($field, $tables, $condition='', $extra = '')
 {
     if ($condition!='') $condition="where $condition";
     return new DbResultSet(
-        query("select $field from $tables $condition")
+        query("select $field from $tables $condition $extra")
     );
 }
 //------------------------------------------------------------------------------

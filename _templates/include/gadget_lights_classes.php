@@ -55,12 +55,13 @@ class GadgetLightsBase extends View
 		$typesLayout = '';
 		while ($type = $types->next())
 		{
-			$link = $this->getSectionUrl($type['id']);
+			$link = self::getSectionUrl($type['id']);
 			$class = ($type['id'] == $this->_typeId) ? 'class="current"' : '';
 			$typesLayout .= "<li $class ><a href=\"$link\">{$type['name']}</a></li>";
 		}
 		return "<ul>$typesLayout</ul>";
 	}
+
 
 
 	/**
@@ -153,7 +154,7 @@ class GadgetLightsBase extends View
 	}
 
 
-	private function getSectionUrl($lightType, $lightCategory = 0, $page = 0)
+	public static function getSectionUrl($lightType, $lightCategory = 0, $page = 0)
 	{
 		$menuId = get_menu_item_id();
 		return "/lights/$lightType/$lightCategory/$menuId/$page.html";
@@ -165,13 +166,21 @@ class GadgetLightsBase extends View
 		return "/light-details/$linkedMenuId/$menuId/$itemId.html";
 	}
 
-	public static function parseUrl()
+	public static function getSearchUrl($page = 0)
+	{
+		$menuId = get_menu_item_id();
+		return "/search/$menuId/$page.html";
+	}
+
+	public function parseUrl()
 	{
 		global $pagePath;
 		if ($pagePath[0] === 'lights')
 			return array('type' => $pagePath[1], 'category' => $pagePath[2], 'page' => $pagePath[4]);
 		elseif ($pagePath[0] === 'light-details')
 			return array('type' => $pagePath[1], 'id' => $pagePath[3]);
+		elseif ($pagePath[0] === 'search')
+			return array('type' => 0, 'page' => $pagePath[2]);
 	}
 
 	protected $_urlData;
@@ -182,11 +191,11 @@ class GadgetLightsBase extends View
 
 class GadgetLightDetails extends GadgetLightsBase
 {
-
 	public function __construct()
 	{
 		parent::__construct();
 		$this->_id = (int)$this->_urlData['id'];
+
 		global $_cms_tree_node_table;
 		$this->_itemProps = get_data_array('*', $_cms_tree_node_table, "id={$this->_id}");
 	}
@@ -228,6 +237,7 @@ class GadgetLightDetails extends GadgetLightsBase
 		);
 
 		$layoutParams['name'] = $this->_itemProps['name'];
+		$layoutParams['search_results_url'] = self::getSearchUrl($_SESSION[GadgetSearchResults::SEARCH_PAGE_PARAM]);
 
 		return $this->renderTemplate($layoutParams, $this->_views['item']);
 	}
@@ -274,7 +284,7 @@ class GadgetLightDetails extends GadgetLightsBase
 								Цена:<span> @price@ руб.</span></span>
 			</div>
 			<div clsas=""></div>
-			<div class="product_info_about_tosearch">К результатам поиска</div>
+			<div class="product_info_about_tosearch"><a href="@search_results_url@" >К результатам поиска</a></div>
 		</div>
 	</div>
 ITEM
@@ -298,18 +308,40 @@ ITEM
 
 class GadgetLightsList extends GadgetLightsBase
 {
-	public function getItemsLayout()
-	{
-		global $_cms_goods_images_url, $_cms_tree_node_table;
+	const ITEMS_PER_PAGE = 2;
 
-		$items = get_data_array_rs('*', $_cms_tree_node_table, "parent={$this->getCurrentTypeId()}");
+	public function __construct()
+	{
+		parent::__construct();
+		$this->_page = (int)$this->_urlData['page'];
+	}
+
+	public function getHtml()
+	{
+		global $_cms_tree_node_table;
+
+		$from = $this->_page * self::ITEMS_PER_PAGE;
+		$items = get_data_array_rs(
+			'SQL_CALC_FOUND_ROWS *',
+			$_cms_tree_node_table,
+			"parent={$this->getCurrentTypeId()}",
+			"limit $from, ".self::ITEMS_PER_PAGE
+		);
+		$this->_totalItems = get_data('FOUND_ROWS()');
+
+		return $this->_getHtml($items);
+	}
+
+	protected function _getHtml($items)
+	{
+		global $_cms_goods_images_url;
+
 		$itemsLayout = '';
 		while ($item = $items->next())
 		{
 			$layoutParams = shop_get_goods_details($item['id'], array('image', 'maker', 'price'));
 			$layoutParams['image'] = "$_cms_goods_images_url/thumbs/{$layoutParams['image']}";
 
-//			$detailNames = array('country', 'length', 'width', 'height', 'diametr', 'lamp_type');
 			$layoutParams['details'] =
 				$this->_getDetails(
 					$item['id'],
@@ -327,13 +359,30 @@ class GadgetLightsList extends GadgetLightsBase
 				);
 
 			$layoutParams['name'] = $item['name'];
-			$layoutParams['link_details'] = $this->getDetailsUrl($this->getCurrentTypeId(), $item['id']);
+			$layoutParams['link_details'] = $this->getDetailsUrl($item['parent'], $item['id']);
 
 			$itemsLayout .= $this->renderTemplate($layoutParams, $this->_views['item']);
 		}
 		return $itemsLayout;
 	}
 
+	public function currentPage()
+	{
+		return $this->_page;
+	}
+
+	public function getPagerHtml()
+	{
+		return get_pager_html(
+			$this->_totalItems,
+			$this->_page,
+			self::ITEMS_PER_PAGE,
+			self::getSectionUrl($this->getCurrentTypeId(), 0, '@_page_@')
+		);
+	}
+
+	protected $_totalItems;
+	protected $_page;
 
 	private $_views = array(
 		'item' => <<<ITEM
@@ -352,52 +401,76 @@ ITEM
 
 }
 
-class GadgetSearchResults extends GadgetLightsBase
+class GadgetSearchResults extends GadgetLightsList
 {
-	public function __construct( /*SearchFilter $filter*/)
+	const SEARCH_PAGE_PARAM = 'search_page';
+
+	public function __construct(SearchFilter $filter)
 	{
 		parent::__construct();
+		$this->_filter =  $filter;
+		$filter->setOwner($this);
+		$this->_page = (int)$this->_urlData['page'];
 	}
 
-	public function getResultsLayout()
+	public function getHtml()
 	{
-		global $_cms_goods_images_url, $_cms_tree_node_table;
+		global $_cms_tree_node_table, $_cms_tree_node_details;
 
-		return 'тут будут результаты';
-		// TODO дальше сделать выборку поиска
+		$filterClause = '';
 
-		$items = get_data_array_rs('*', $_cms_tree_node_table, "parent={$this->getCurrentTypeId()}");
-		$itemsLayout = '';
-		while ($item = $items->next())
+		/** @var $option SearchFilterOption */
+		foreach ($this->_filter->options() as $option)
 		{
-			$layoutParams = shop_get_goods_details($item['id'], array('image', 'maker', 'price'));
-			$layoutParams['image'] = "$_cms_goods_images_url/thumbs/{$layoutParams['image']}";
-
-//			$detailNames = array('country', 'length', 'width', 'height', 'diametr', 'lamp_type');
-			$layoutParams['details'] =
-				$this->_getDetails(
-					$item['id'],
-					array(
-						'diametr' => array('Диаметр', 1),
-						'lamp_type' => array('Тип ламп', 2),
-						'country' => array('Производство', 3),
-						'length' => '',
-						'width' => '',
-						'height' => ''
-					),
-					array('size' => array('Размеры', 0)),
-					'@label@: @value@',
-					'<br/>'
-				);
-
-			$layoutParams['name'] = $item['name'];
-			$layoutParams['link_details'] = $this->getDetailsUrl($this->getCurrentTypeId(), $item['id']);
-
-			$itemsLayout .= $this->renderTemplate($layoutParams, $this->_views['item']);
+			if ($option->isEmpty())
+				continue;
+			switch ($option->fieldName())
+			{
+				case SearchFilter::FILTER_FIELD_TYPE:
+					$filterClause .= " AND n.type='" . pmMysqlSafe($option->value()) ."'";
+					break;
+				case SearchFilter::FILTER_FIELD_MAKER:
+					$filterClause .= " AND EXISTS(SELECT 1 FROM $_cms_tree_node_details nd WHERE nd.node=n.id AND typeId='maker' AND value='".pmMysqlSafe($option->value()) ."')";
+					break;
+				case SearchFilter::FILTER_FIELD_LAMP:
+					$filterClause .= " AND EXISTS(SELECT 1 FROM $_cms_tree_node_details nd WHERE nd.node=n.id AND typeId='lamp_type' AND value='".pmMysqlSafe($option->value()) ."')";
+					break;
+				case SearchFilter::FILTER_FIELD_PRICE_FROM:
+					$filterClause .= " AND EXISTS(SELECT 1 FROM $_cms_tree_node_details nd WHERE nd.node=n.id AND typeId='price' AND value >= ".pmMysqlSafe($option->value()) .")";
+					break;
+				case SearchFilter::FILTER_FIELD_PRICE_TO:
+					$filterClause .= " AND EXISTS(SELECT 1 FROM $_cms_tree_node_details nd WHERE nd.node=n.id AND typeId='price' AND value <= ".pmMysqlSafe($option->value()) .")";
+					break;
+			}
 		}
-		return $itemsLayout;
+
+		$from = $this->_page * self::ITEMS_PER_PAGE;
+		$items = get_data_array_rs(
+			'SQL_CALC_FOUND_ROWS id, name, parent, type',
+			"$_cms_tree_node_table n",
+			" TRUE $filterClause",
+			"limit $from, ".self::ITEMS_PER_PAGE
+		);
+
+		$this->_totalItems = get_data('FOUND_ROWS()');
+
+		return $this->_getHtml($items);
 	}
 
+	public function setCurrentPage($page)
+	{
+		$this->_page = $page;
+	}
+
+	public function getPagerHtml()
+	{
+		return get_pager_html(
+			$this->_totalItems,
+			$this->_page,
+			self::ITEMS_PER_PAGE,
+			self::getSearchUrl('@_page_@')
+		);
+	}
 
 	private $_views = array(
 		'item' => <<<ITEM
@@ -413,7 +486,6 @@ class GadgetSearchResults extends GadgetLightsBase
 </div>
 ITEM
 	);
-
 
 }
 
@@ -430,14 +502,12 @@ ITEM
  */
 class SearchFilter extends View
 {
-
 	const FILTER_FIELD_TYPE = 'filter_type';
 	const FILTER_FIELD_LAMP = 'filter_lamp';
 	const FILTER_FIELD_MAKER = 'filter_maker';
 	const FILTER_FIELD_PRICE_FROM = 'price_from';
 	const FILTER_FIELD_PRICE_TO = 'price_to';
-	const FILTER_FIELD_HAS_DISCOUNT = 'has_discount';
-	const FILTER_FIELD_EXISTS = 'exists';
+//	const FILTER_FIELD_HAS_DISCOUNT = 'has_discount';
 
 	public function __construct()
 	{
@@ -451,6 +521,11 @@ class SearchFilter extends View
 		}
 	}
 
+	public function setOwner($owner)
+	{
+		$this->_owner = $owner;
+	}
+
 	public function getFilterLayout()
 	{
 		$templateParams = array();
@@ -460,6 +535,7 @@ class SearchFilter extends View
 			$templateParams[$name] = $field->getHtml();
 		}
 
+		$templateParams['results_url'] = GadgetLightsBase::getSearchUrl();
 		return $this->renderTemplate(
 			$templateParams,
 			$this->_views['filter']
@@ -479,6 +555,12 @@ class SearchFilter extends View
 	public function setContext()
 	{
 		$this->_keepContext = true;
+
+		if ($this->_owner instanceof GadgetSearchResults)
+		{
+			$_SESSION[GadgetSearchResults::SEARCH_PAGE_PARAM] = $this->_owner->currentPage();
+		}
+
 		$search_start = pmImportVarsList('search_start');
 
 		if (!$search_start)
@@ -521,34 +603,43 @@ class SearchFilter extends View
 		}
 	}
 
+	/**
+	 * @param $name
+	 *
+	 * @return array(SearchFilterOption) | SearchFilterOption
+	 */
+	public function options($name = null)
+	{
+		if ($name)
+			return $this->_formFields[$name];
+		else
+			return $this->_formFields;
+	}
+
 	public function __destruct()
 	{
 		if (!$this->_keepContext)
 			$this->_destroyContext();
 	}
 
-	// TODO урл формы генерировать!
 	private $_views = array(
 		'filter' => <<<FILTER
 <div class="left_menu_filter">
 		<span>Фильтр</span>
 		<br>
 		<div class="left_menu_filter_form">
-		<form id="search_form" action="/search/0.html" method="POST" target="_self">
+		<form id="search_form" action="@results_url@" method="POST" target="_self">
 			<label>Тип товара</label>
 			@filter_type@
-			<!--<select name='filter_type'><option  selected value='-1'>-выберите значение-</option><option >Люстры потолочные</option><option>Люстры подвесные</option></select>-->
 			<label>Производитель</label>
 			@filter_maker@
-			<!--<select><option  selected value='empty'>-выберите значение-</option><option >ODEON LIGHT</option><option>GENERAL ELECTRIC</option></select>-->
 			<label>Тип ламп</label>
 			@filter_lamp@
 			<label>Цена</label>
-			@price_from@<!--<input type="text" class="left_menu_input" placeholder="От" value="">-->
-			@price_to@<!--<input type="text" class="left_menu_input last" placeholder="До" value="">-->
+			@price_from@
+			@price_to@
 			<br>
-			<div class="left_menu_checkbox_wrap">@has_discount@<!--<input type="checkbox">-->Товар по скидке</div>
-			<div class="left_menu_checkbox_wrap">@exists@<!--<input type="checkbox">-->Товар в наличии</div>
+			<!--<div class="left_menu_checkbox_wrap">@has_discount@Товар по скидке</div>-->
 			<div class="left_menu_filter_form_button" onclick="$('#search_form')[0].submit()">Подобрать</div>
 			<input type="hidden" name="search_start" value="1"/>
 		</form>
@@ -573,14 +664,10 @@ FILTER
 				'attributes' => array('class' => 'left_menu_input last', 'placeholder' => 'До')
 			)
 		),
-		self::FILTER_FIELD_HAS_DISCOUNT => array(
-			'type' => SearchFilterOption::OPTION_TYPE_CHECK,
-			'options' => array()
-		),
-		self::FILTER_FIELD_EXISTS => array(
-			'type' => SearchFilterOption::OPTION_TYPE_CHECK,
-			'options' => array()
-		),
+//		self::FILTER_FIELD_HAS_DISCOUNT => array(
+//			'type' => SearchFilterOption::OPTION_TYPE_CHECK,
+//			'options' => array()
+//		),
 		self::FILTER_FIELD_TYPE => array(
 			'type' => SearchFilterOption::OPTION_TYPE_COMBO,
 			'options' => array(
@@ -624,6 +711,8 @@ FILTER
 			)
 		),
 	);
+
+	private $_owner;
 }
 
 abstract class SearchFilterOption
@@ -774,25 +863,7 @@ class SearchFilterOptionCombo extends SearchFilterOption
 	{
 		return '-1';
 	}
-
-	/**
-	 * @var $_options array дополнительные, специфичные для данного типа поля, настройки
-	 */
-//	private $_options;
 }
-
-//class SearchFilterOptionText extends SearchFilterOption
-//{
-//	public function getHtml()
-//	{
-//		return '';
-//	}
-//
-//	public function emptyValue()
-//	{
-//		return '';
-//	}
-//}
 
 class SearchFilterOptionCheck extends SearchFilterOption
 {
