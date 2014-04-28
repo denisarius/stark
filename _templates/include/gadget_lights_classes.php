@@ -48,7 +48,7 @@ class GadgetLightsBase extends View
 			return $res;
 	}
 
-	public function getTypesMenuLayout()
+	public function getTypesMenuHtml()
 	{
 		global $_cms_menus_items_table, $_shop_menu_id;
 		$types = get_data_array_rs('name, id', $_cms_menus_items_table, "menu=$_shop_menu_id AND parent=0");
@@ -61,7 +61,6 @@ class GadgetLightsBase extends View
 		}
 		return "<ul>$typesLayout</ul>";
 	}
-
 
 
 	/**
@@ -191,16 +190,17 @@ class GadgetLightsBase extends View
 
 class GadgetLightDetails extends GadgetLightsBase
 {
-	public function __construct()
+	public function __construct(SearchFilter $filter)
 	{
 		parent::__construct();
 		$this->_id = (int)$this->_urlData['id'];
+		$this->_filter = $filter;
 
 		global $_cms_tree_node_table;
 		$this->_itemProps = get_data_array('*', $_cms_tree_node_table, "id={$this->_id}");
 	}
 
-	public function getItemLayout()
+	public function getItemHtml()
 	{
 		global $_cms_goods_images_url;
 		$layoutParams = shop_get_goods_details($this->_id, array('image', 'maker', 'price'));
@@ -237,12 +237,20 @@ class GadgetLightDetails extends GadgetLightsBase
 		);
 
 		$layoutParams['name'] = $this->_itemProps['name'];
-		$layoutParams['search_results_url'] = self::getSearchUrl($_SESSION[GadgetSearchResults::SEARCH_PAGE_PARAM]);
+		if (!$this->_filter->isEmpty())
+		{
+			$searchLink = self::getSearchUrl($_SESSION[GadgetSearchResults::SEARCH_PAGE_PARAM]);
+			$layoutParams['search_results_link'] = <<<STR
+	<div class="product_info_about_tosearch"><a href="$searchLink" >К результатам поиска</a></div>
+STR;
+		}
+		else
+			$layoutParams['search_results_link'] = '';
 
 		return $this->renderTemplate($layoutParams, $this->_views['item']);
 	}
 
-	public function getLayoutSimilar()
+	public function getSimilarHtml()
 	{
 		global $_cms_goods_images_url, $_cms_tree_node_table, $_cms_tree_node_details;
 
@@ -252,7 +260,8 @@ class GadgetLightDetails extends GadgetLightsBase
 			"$_cms_tree_node_table n",
 			"EXISTS(SELECT 1 FROM $_cms_tree_node_details nd WHERE nd.node=n.id AND typeId='collection' AND value='{$itemDetails['collection']}')".
 			" AND EXISTS(SELECT 1 FROM $_cms_tree_node_details nd WHERE nd.node=n.id AND typeId='maker' AND value='{$itemDetails['maker']}')".
-			" AND n.type='{$this->_itemProps['type']}'"
+			" AND n.type='{$this->_itemProps['type']}'".
+			" AND n.id <> ".$this->_id
 		);
 
 		$layout = '';
@@ -284,7 +293,7 @@ class GadgetLightDetails extends GadgetLightsBase
 								Цена:<span> @price@ руб.</span></span>
 			</div>
 			<div clsas=""></div>
-			<div class="product_info_about_tosearch"><a href="@search_results_url@" >К результатам поиска</a></div>
+			@search_results_link@
 		</div>
 	</div>
 ITEM
@@ -304,6 +313,7 @@ ITEM
 	private $_id;
 	/** все свойства товара из записи БД */
 	private $_itemProps;
+	private $_filter;
 }
 
 class GadgetLightsList extends GadgetLightsBase
@@ -320,7 +330,7 @@ class GadgetLightsList extends GadgetLightsBase
 	{
 		global $_cms_tree_node_table;
 
-		$from = $this->_page * self::ITEMS_PER_PAGE;
+		$from = $this->_page*self::ITEMS_PER_PAGE;
 		$items = get_data_array_rs(
 			'SQL_CALC_FOUND_ROWS *',
 			$_cms_tree_node_table,
@@ -408,9 +418,10 @@ class GadgetSearchResults extends GadgetLightsList
 	public function __construct(SearchFilter $filter)
 	{
 		parent::__construct();
-		$this->_filter =  $filter;
-		$filter->setOwner($this);
 		$this->_page = (int)$this->_urlData['page'];
+		$this->_filter = $filter;
+
+		$_SESSION[self::SEARCH_PAGE_PARAM] = $this->currentPage();
 	}
 
 	public function getHtml()
@@ -427,24 +438,36 @@ class GadgetSearchResults extends GadgetLightsList
 			switch ($option->fieldName())
 			{
 				case SearchFilter::FILTER_FIELD_TYPE:
-					$filterClause .= " AND n.type='" . pmMysqlSafe($option->value()) ."'";
+					$filterClause .= " AND n.type='".pmMysqlSafe($option->value())."'";
 					break;
 				case SearchFilter::FILTER_FIELD_MAKER:
-					$filterClause .= " AND EXISTS(SELECT 1 FROM $_cms_tree_node_details nd WHERE nd.node=n.id AND typeId='maker' AND value='".pmMysqlSafe($option->value()) ."')";
+					$filterClause .=
+						" AND EXISTS(SELECT 1 FROM $_cms_tree_node_details nd WHERE nd.node=n.id AND typeId='maker' AND value='".
+						pmMysqlSafe($option->value()).
+						"')";
 					break;
 				case SearchFilter::FILTER_FIELD_LAMP:
-					$filterClause .= " AND EXISTS(SELECT 1 FROM $_cms_tree_node_details nd WHERE nd.node=n.id AND typeId='lamp_type' AND value='".pmMysqlSafe($option->value()) ."')";
+					$filterClause .=
+						" AND EXISTS(SELECT 1 FROM $_cms_tree_node_details nd WHERE nd.node=n.id AND typeId='lamp_type' AND value='".
+						pmMysqlSafe($option->value()).
+						"')";
 					break;
 				case SearchFilter::FILTER_FIELD_PRICE_FROM:
-					$filterClause .= " AND EXISTS(SELECT 1 FROM $_cms_tree_node_details nd WHERE nd.node=n.id AND typeId='price' AND value >= ".pmMysqlSafe($option->value()) .")";
+					$filterClause .=
+						" AND EXISTS(SELECT 1 FROM $_cms_tree_node_details nd WHERE nd.node=n.id AND typeId='price' AND value >= ".
+						pmMysqlSafe($option->value()).
+						")";
 					break;
 				case SearchFilter::FILTER_FIELD_PRICE_TO:
-					$filterClause .= " AND EXISTS(SELECT 1 FROM $_cms_tree_node_details nd WHERE nd.node=n.id AND typeId='price' AND value <= ".pmMysqlSafe($option->value()) .")";
+					$filterClause .=
+						" AND EXISTS(SELECT 1 FROM $_cms_tree_node_details nd WHERE nd.node=n.id AND typeId='price' AND value <= ".
+						pmMysqlSafe($option->value()).
+						")";
 					break;
 			}
 		}
 
-		$from = $this->_page * self::ITEMS_PER_PAGE;
+		$from = $this->_page*self::ITEMS_PER_PAGE;
 		$items = get_data_array_rs(
 			'SQL_CALC_FOUND_ROWS id, name, parent, type',
 			"$_cms_tree_node_table n",
@@ -457,11 +480,6 @@ class GadgetSearchResults extends GadgetLightsList
 		return $this->_getHtml($items);
 	}
 
-	public function setCurrentPage($page)
-	{
-		$this->_page = $page;
-	}
-
 	public function getPagerHtml()
 	{
 		return get_pager_html(
@@ -472,21 +490,7 @@ class GadgetSearchResults extends GadgetLightsList
 		);
 	}
 
-	private $_views = array(
-		'item' => <<<ITEM
-<div class="right_column_node">
-	<a href="@link_details@">
-	<img src="@image@">
-	<h2>@name@</h2>
-	</a>
-	<p>Производитель: @maker@</p>
-	<span>@details@</span>
-	<div class="right_column_node_price">Цена: <span>@price@ руб.</span></div>
-	<a href="@link_details@" class="right_column_node_button">Подробнее</a>
-</div>
-ITEM
-	);
-
+	private $_filter;
 }
 
 /**
@@ -507,6 +511,7 @@ class SearchFilter extends View
 	const FILTER_FIELD_MAKER = 'filter_maker';
 	const FILTER_FIELD_PRICE_FROM = 'price_from';
 	const FILTER_FIELD_PRICE_TO = 'price_to';
+
 //	const FILTER_FIELD_HAS_DISCOUNT = 'has_discount';
 
 	public function __construct()
@@ -521,12 +526,7 @@ class SearchFilter extends View
 		}
 	}
 
-	public function setOwner($owner)
-	{
-		$this->_owner = $owner;
-	}
-
-	public function getFilterLayout()
+	public function getHtml()
 	{
 		$templateParams = array();
 		/** @var $field SearchFilterOption */
@@ -555,11 +555,6 @@ class SearchFilter extends View
 	public function setContext()
 	{
 		$this->_keepContext = true;
-
-		if ($this->_owner instanceof GadgetSearchResults)
-		{
-			$_SESSION[GadgetSearchResults::SEARCH_PAGE_PARAM] = $this->_owner->currentPage();
-		}
 
 		$search_start = pmImportVarsList('search_start');
 
@@ -664,10 +659,10 @@ FILTER
 				'attributes' => array('class' => 'left_menu_input last', 'placeholder' => 'До')
 			)
 		),
-//		self::FILTER_FIELD_HAS_DISCOUNT => array(
-//			'type' => SearchFilterOption::OPTION_TYPE_CHECK,
-//			'options' => array()
-//		),
+		//		self::FILTER_FIELD_HAS_DISCOUNT => array(
+		//			'type' => SearchFilterOption::OPTION_TYPE_CHECK,
+		//			'options' => array()
+		//		),
 		self::FILTER_FIELD_TYPE => array(
 			'type' => SearchFilterOption::OPTION_TYPE_COMBO,
 			'options' => array(
@@ -869,7 +864,7 @@ class SearchFilterOptionCheck extends SearchFilterOption
 {
 	public function getHtml()
 	{
-		$checked = $this->_value === false ? '' :  'checked';
+		$checked = $this->_value === false ? '' : 'checked';
 		$attr = "type=\"checkbox\" $checked name=\"{$this->_fieldName}\"";
 
 		if (isset($this->_options['attributes']))

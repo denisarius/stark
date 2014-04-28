@@ -42,6 +42,7 @@ ul {
 .pager {
 	margin-bottom: 130px;
 	margin-top: 60px;
+    clear: both;
 }
 
 .pager span {
