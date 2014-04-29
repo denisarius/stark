@@ -1,6 +1,6 @@
 <?php
-$gadget = new GadgetLightsList();
 global $searchFilter;
+$gadget = new GadgetLightsList($searchFilter);
 ?>
 <div class="left_menu_container">
 	<?php echo $gadget->getTypesMenuHtml(); ?>

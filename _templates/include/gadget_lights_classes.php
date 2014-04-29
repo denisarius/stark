@@ -236,7 +236,7 @@ class GadgetLightDetails extends GadgetLightsBase
 	{
 		global $_cms_goods_images_url;
 		$layoutParams = shop_get_goods_details($this->_id, array('image', 'maker', 'price'));
-		$layoutParams['image'] = "$_cms_goods_images_url/{$layoutParams['image']}";
+		$layoutParams['image'] = $layoutParams['image'] ? "$_cms_goods_images_url/{$layoutParams['image']}" : '';
 
 //		$detailNames = array('country', 'diametr', 'lamp_type');
 		$layoutParams['details'] = $this->_getDetails(
@@ -300,7 +300,7 @@ STR;
 		while ($item = $similarItems->next())
 		{
 			$layoutParams = shop_get_goods_details($item['id'], array('image', 'maker', 'price'));
-			$layoutParams['image'] = "$_cms_goods_images_url/thumbs/{$layoutParams['image']}";
+			$layoutParams['image'] = $layoutParams['image'] ? "$_cms_goods_images_url/thumbs/{$layoutParams['image']}" : '';
 			$layoutParams['name'] = $item['name'];
 			$layoutParams['link'] = $this->getDetailsUrl($item['parent'], $item['id']);
 			$layout .= $this->_renderTemplate($layoutParams, $this->_views['similar']);
@@ -352,10 +352,11 @@ class GadgetLightsList extends GadgetLightsBase
 {
 	const ITEMS_PER_PAGE = 2;
 
-	public function __construct()
+	public function __construct(SearchFilter $filter)
 	{
 		parent::__construct();
 		$this->_page = (int)$this->_urlData['page'];
+		$this->_filter = $filter;
 	}
 
 	public function getCategoriesHtml()
@@ -423,7 +424,7 @@ class GadgetLightsList extends GadgetLightsBase
 		while ($item = $items->next())
 		{
 			$layoutParams = shop_get_goods_details($item['id'], array('image', 'maker', 'price'));
-			$layoutParams['image'] = "$_cms_goods_images_url/thumbs/{$layoutParams['image']}";
+			$layoutParams['image'] = $layoutParams['image'] ? "$_cms_goods_images_url/thumbs/{$layoutParams['image']}" : '';
 
 			$layoutParams['details'] =
 				$this->_getDetails(
@@ -446,7 +447,9 @@ class GadgetLightsList extends GadgetLightsBase
 
 			$itemsLayout .= $this->_renderTemplate($layoutParams, $this->_views['item']);
 		}
-		return $itemsLayout ? $itemsLayout : 'Извините, в данном разделе нет ни одного товара';
+		$noResultsMessage = $this->_filter->isEmpty(
+		) ? 'Извините, в данном разделе нет ни одного товара' : 'Поиск не дал результатов';
+		return $itemsLayout ? $itemsLayout : $noResultsMessage;
 	}
 
 	public function currentPage()
@@ -488,6 +491,7 @@ CATITEM
 		'categories' => "<div><span >Категории:</span></div><ul>@items@</ul>"
 	);
 
+	private $_filter;
 }
 
 class GadgetSearchResults extends GadgetLightsList
@@ -496,7 +500,7 @@ class GadgetSearchResults extends GadgetLightsList
 
 	public function __construct(SearchFilter $filter)
 	{
-		parent::__construct();
+		parent::__construct($filter);
 		$this->_page = (int)$this->_urlData['page'];
 		$this->_filter = $filter;
 
