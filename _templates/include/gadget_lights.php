@@ -7,7 +7,10 @@ global $searchFilter;
 	<?php echo $searchFilter->getHtml(); ?>
 </div>
 <div class="right_column_container">
-	<h1><?php echo $gadget->getCurrentTypeName(); ?></h1>
+	<div>
+		<h1><?php echo $gadget->getCurrentTypeName(); ?></h1>
+		<?php echo $gadget->getCategoriesHtml(); ?>
+	</div>
 	<?php echo $gadget->getHtml(); ?>
 	<?php echo $gadget->getPagerHtml(); ?>
 </div>

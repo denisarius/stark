@@ -2,7 +2,7 @@
 
 class View
 {
-	protected function renderTemplate($params, $template)
+	final protected function _renderTemplate($params, $template)
 	{
 		$paramNames = array();
 		$paramValues = array();
@@ -24,12 +24,44 @@ class GadgetLightsBase extends View
 	public function __construct()
 	{
 		$this->_urlData = $this->parseUrl();
-		$this->_typeId = (int)$this->_urlData['type'];
+		$this->_typeMenuId = (int)$this->_urlData['type'];
+		$this->_categoryId = isset($this->_urlData['category']) ? (int)$this->_urlData['category'] : 0;
 	}
 
-	public function getCurrentTypeId()
+	/**
+	 * ид текущего (активного в меню) типа люстр
+	 * @return int ид типа
+	 */
+	protected function _getCurrentTypeMenuId()
 	{
+		return $this->_typeMenuId;
+	}
+
+	/**
+	 * ид типа, равное ид в конфигурации товаров
+	 * @return int
+	 */
+	protected function _currentTypeId()
+	{
+		if (!isset($this->_typeId))
+		{
+			global $_cms_tree_node_table;
+			$this->_typeId = (int)get_data_query(
+				'type',
+				"select type from $_cms_tree_node_table where parent=".$this->_getCurrentTypeMenuId().' limit 1'
+			);
+		}
+
 		return $this->_typeId;
+	}
+
+	/**
+	 * ид типа, равное ид в конфигурации товаров
+	 * @return int
+	 */
+	protected function _currentCategoryId()
+	{
+		return $this->_categoryId;
 	}
 
 	public function getCurrentTypeName()
@@ -37,7 +69,7 @@ class GadgetLightsBase extends View
 		global $_cms_menus_items_table;
 
 
-		$res = get_data('name', $_cms_menus_items_table, "id={$this->getCurrentTypeId()}");
+		$res = get_data('name', $_cms_menus_items_table, "id={$this->_getCurrentTypeMenuId()}");
 
 		if ($res === false)
 		{
@@ -56,7 +88,7 @@ class GadgetLightsBase extends View
 		while ($type = $types->next())
 		{
 			$link = self::getSectionUrl($type['id']);
-			$class = ($type['id'] == $this->_typeId) ? 'class="current"' : '';
+			$class = ($type['id'] == $this->_typeMenuId) ? 'class="current"' : '';
 			$typesLayout .= "<li $class ><a href=\"$link\">{$type['name']}</a></li>";
 		}
 		return "<ul>$typesLayout</ul>";
@@ -183,9 +215,9 @@ class GadgetLightsBase extends View
 	}
 
 	protected $_urlData;
-	// текущий (активный в меню) тип
+	private $_typeMenuId;
 	private $_typeId;
-
+	private $_categoryId;
 }
 
 class GadgetLightDetails extends GadgetLightsBase
@@ -247,7 +279,7 @@ STR;
 		else
 			$layoutParams['search_results_link'] = '';
 
-		return $this->renderTemplate($layoutParams, $this->_views['item']);
+		return $this->_renderTemplate($layoutParams, $this->_views['item']);
 	}
 
 	public function getSimilarHtml()
@@ -271,7 +303,7 @@ STR;
 			$layoutParams['image'] = "$_cms_goods_images_url/thumbs/{$layoutParams['image']}";
 			$layoutParams['name'] = $item['name'];
 			$layoutParams['link'] = $this->getDetailsUrl($item['parent'], $item['id']);
-			$layout .= $this->renderTemplate($layoutParams, $this->_views['similar']);
+			$layout .= $this->_renderTemplate($layoutParams, $this->_views['similar']);
 		}
 
 		return $layout;
@@ -326,15 +358,56 @@ class GadgetLightsList extends GadgetLightsBase
 		$this->_page = (int)$this->_urlData['page'];
 	}
 
+	public function getCategoriesHtml()
+	{
+		global $_cms_directories_data, $_cms_tree_node_details;
+		$this->_getCurrentTypeMenuId();
+		$dirId = cms_get_object_detail($this->_currentTypeId(), 'type', '_cms_good_types');
+		$dirId = (int)$dirId['options'];
+		$categories = get_data_array_rs(
+			'distinct dcat.id, dcat.content',
+			"$_cms_directories_data dcat join $_cms_tree_node_details nd ON dcat.id = nd.value",
+			"nd.typeId = 'type' AND dcat.dir=$dirId",
+			'order by dcat.id'
+		);
+		$categoriesHtml = '';
+		while ($cat = $categories->next())
+		{
+			$categoriesHtml .= $this->_renderTemplate(
+				array(
+					//<li><a title="" href="@url@" class="@class@">@name@</a></li>
+					'url' => self::getSectionUrl($this->_getCurrentTypeMenuId(), $cat['id']),
+					'class' => '',
+					'name' => $cat['content']
+				),
+				$this->_views['cat_item']
+			);
+		}
+		if ($categoriesHtml)
+			return $this->_renderTemplate(array('items' => $categoriesHtml), $this->_views['categories']);
+		else
+			return '';
+	}
+
 	public function getHtml()
 	{
 		global $_cms_tree_node_table;
 
 		$from = $this->_page*self::ITEMS_PER_PAGE;
+		$categoryJoin = '';
+		$categoryCondition = '';
+
+		if (($categoryId = $this->_currentCategoryId()) > 0)
+		{
+			global $_cms_tree_node_details;
+			$categoryJoin = "JOIN $_cms_tree_node_details nd ON n.id = nd.node";
+			$categoryCondition = "AND nd.typeId = 'type' AND nd.value = $categoryId";
+		}
+
 		$items = get_data_array_rs(
-			'SQL_CALC_FOUND_ROWS *',
-			$_cms_tree_node_table,
-			"parent={$this->getCurrentTypeId()}",
+			'SQL_CALC_FOUND_ROWS n.*',
+			"$_cms_tree_node_table n $categoryJoin",
+			"parent={$this->_getCurrentTypeMenuId()} $categoryCondition",
 			"limit $from, ".self::ITEMS_PER_PAGE
 		);
 		$this->_totalItems = get_data('FOUND_ROWS()');
@@ -371,9 +444,9 @@ class GadgetLightsList extends GadgetLightsBase
 			$layoutParams['name'] = $item['name'];
 			$layoutParams['link_details'] = $this->getDetailsUrl($item['parent'], $item['id']);
 
-			$itemsLayout .= $this->renderTemplate($layoutParams, $this->_views['item']);
+			$itemsLayout .= $this->_renderTemplate($layoutParams, $this->_views['item']);
 		}
-		return $itemsLayout;
+		return $itemsLayout ? $itemsLayout : '»звините, в данном разделе нет ни одного товара';
 	}
 
 	public function currentPage()
@@ -387,7 +460,7 @@ class GadgetLightsList extends GadgetLightsBase
 			$this->_totalItems,
 			$this->_page,
 			self::ITEMS_PER_PAGE,
-			self::getSectionUrl($this->getCurrentTypeId(), 0, '@_page_@')
+			self::getSectionUrl($this->_getCurrentTypeMenuId(), 0, '@_page_@')
 		);
 	}
 
@@ -407,6 +480,12 @@ class GadgetLightsList extends GadgetLightsBase
 	<a href="@link_details@" class="right_column_node_button">ѕодробнее</a>
 </div>
 ITEM
+		,
+		'cat_item' => <<<CATITEM
+<li><a title="" href="@url@" class="@class@">@name@</a></li>
+CATITEM
+		,
+		'categories' => "<div><span > атегории:</span></div><ul>@items@</ul>"
 	);
 
 }
@@ -536,8 +615,8 @@ class SearchFilter extends View
 		}
 
 		$templateParams['results_url'] = GadgetLightsBase::getSearchUrl();
-		return $this->renderTemplate(
-			$templateParams,
+		return $this->_renderTemplate(
+		$templateParams,
 			$this->_views['filter']
 		);
 	}
@@ -588,7 +667,7 @@ class SearchFilter extends View
 		}
 	}
 
-	public function _destroyContext()
+	private function _destroyContext()
 	{
 		/** @var $field SearchFilterOption */
 		foreach ($this->_formFields as $name => $field)
@@ -599,16 +678,11 @@ class SearchFilter extends View
 	}
 
 	/**
-	 * @param $name
-	 *
 	 * @return array(SearchFilterOption) | SearchFilterOption
 	 */
-	public function options($name = null)
+	public function options()
 	{
-		if ($name)
-			return $this->_formFields[$name];
-		else
-			return $this->_formFields;
+		return $this->_formFields;
 	}
 
 	public function __destruct()
@@ -706,8 +780,6 @@ FILTER
 			)
 		),
 	);
-
-	private $_owner;
 }
 
 abstract class SearchFilterOption
